@@ -1,0 +1,22 @@
+{
+  "title": "TileTactician",
+  "root": true,
+  "icon": "Grid2x2",
+  "description": "TileTactician Scrabble and Crossplay board analysis — every legal play, ranked by score, in real time.",
+  "pages": [
+    "---[Rocket]Get started---",
+    "index",
+    "getting-started",
+    "---[Target]Game analysis---",
+    "board-entry",
+    "board-scanning",
+    "rack-analysis",
+    "endgame",
+    "tile-bag",
+    "---[Share2]App---",
+    "share-extension",
+    "---[CircleQuestionMark]Support---",
+    "faq",
+    "changelog"
+  ]
+}

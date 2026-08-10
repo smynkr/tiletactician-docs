@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="Infolitico">
+  <rect width="64" height="64" rx="14" fill="#FDF8F0"/>
+  <path
+    d="M32 8 C24.5 17 15 25.5 15 37 a17 17 0 0 0 34 0 C49 25.5 39.5 17 32 8 Z"
+    fill="#5E0F1C"
+  />
+  <path
+    d="M32 21 C27.5 26.5 23 31 23 37.5 a9 9 0 0 0 18 0 C41 31 36.5 26.5 32 21 Z"
+    fill="#FDF8F0"
+  />
+  <rect x="0.75" y="0.75" width="62.5" height="62.5" rx="13.25" stroke="#5E0F1C" stroke-opacity="0.3" stroke-width="1.5"/>
+</svg>

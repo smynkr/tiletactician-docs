@@ -1,0 +1,92 @@
+---
+title: FAQ & troubleshooting
+description: Common questions and fixes for TileTactician.
+---
+
+Common questions and fixes for TileTactician.
+
+## General
+
+### Is TileTactician free?
+
+TileTactician is currently in active development. Pricing and availability
+will be announced at launch.
+
+### Does it work offline?
+
+Yes. The solver and dictionary are embedded in the app. Board analysis
+requires no network connection.
+
+### What word list does it use?
+
+TileTactician uses the official tournament word list. The dictionary is
+embedded and updated with app releases.
+
+### Does it support Words With Friends?
+
+Not currently. TileTactician supports Scrabble and NYT Crossplay board
+formats. Words With Friends uses a different board layout and letter
+distribution.
+
+## Analysis
+
+### Why are some plays missing from the results?
+
+The solver finds every legal placement from your current rack. If a play is
+missing:
+
+- **Check the board.** A missing or misplaced tile changes which words are
+  formable. See [Board entry](/tiletactician/board-entry).
+
+- **Check your rack.** Make sure the rack matches your actual tiles exactly,
+  including blanks.
+
+- **Check blanks.** A blank entered as a fixed letter won't be treated as a
+  wildcard.
+
+### Why is the score different from what I calculated?
+
+Premium squares are the most common cause. Verify that:
+
+- Tiles on premium squares are placed on the correct color
+
+- Word premiums stack multiplicatively (double-word × double-word = 4×)
+
+- Cross-word scores are included in the total
+
+### The analysis is slow
+
+On modern devices (Apple M-series, A15+), a full mid-game analysis completes
+in under 500 ms. If analysis is noticeably slow:
+
+- Close background apps to free memory
+
+- Ensure the board has no empty interior gaps (holes between tiles), which
+  increase the search space
+
+- Restart the app if the solver appears stuck
+
+## Share Extension
+
+### TileTactician does not appear in the share sheet
+
+See [Share Extension → Enabling the extension](/tiletactician/share-extension#enabling-the-extension).
+
+### The imported board has wrong tiles
+
+Image recognition is not perfect. Always verify the board after import. Common
+misreads:
+
+- **O / 0** — the letter O vs. an empty cell
+
+- **I / L / 1** — similar shapes in some app renderings
+
+- **S / 5** — in low-resolution screenshots
+
+Tap any cell to correct it before analyzing.
+
+## Contact
+
+For bugs, feature requests, or questions: open an issue on
+[GitHub](https://github.com/smynkr/Crossplay-Pro/issues) or email
+[support@tiletactician.com](mailto:support@tiletactician.com).

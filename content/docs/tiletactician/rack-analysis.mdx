@@ -1,0 +1,102 @@
+---
+title: Rack analysis
+description: How TileTactician ranks plays, calculates scores, and handles special tiles.
+---
+
+How TileTactician ranks plays, calculates scores, and handles special tiles.
+
+## How scoring works
+
+TileTactician calculates scores using standard Scrabble rules:
+
+1. **Base tile values** — each letter carries its standard point value (A=1,
+   B=3, C=3, D=2, E=1, F=4, G=2, H=4, I=1, J=8, K=5, L=1, M=3, N=1, O=1,
+   P=3, Q=10, R=1, S=1, T=1, U=1, V=4, W=4, X=8, Y=4, Z=10).
+
+2. **Letter premiums** — double-letter and triple-letter squares multiply the
+   tile value before summing.
+
+3. **Word premiums** — double-word and triple-word squares multiply the entire
+   word score. Multiple word premiums stack multiplicatively.
+
+4. **Cross-words** — any perpendicular words formed by the placement are scored
+   and added to the total.
+
+5. **Bingo bonus** — playing all seven rack tiles in one turn adds 50 bonus
+   points.
+
+## Play ranking
+
+Results are sorted by total score, highest first. When two plays score
+identically, the solver breaks ties by:
+
+- Fewer tiles used (preserves rack flexibility)
+
+- Alphabetical word order (deterministic output)
+
+## Rack management
+
+The rack bar shows your current tiles. You can:
+
+- **Add tiles** — tap the `+` button and select letters
+
+- **Remove tiles** — tap a tile in the rack to return it
+
+- **Set blanks** — long-press a tile to toggle it as a blank wildcard
+
+## Performance
+
+The solver is optimized for real-time analysis:
+
+| Board state                    | Typical time (Apple Silicon) |
+| ------------------------------ | ---------------------------- |
+| Empty board, 7 tiles           | \<  200 ms                   |
+| Mid-game board, 7 tiles        | \<  500 ms                   |
+| All-duplicate rack (e.g., 7×E) | \<  50 ms                    |
+
+Results stream incrementally — the best play appears before the full search
+completes.
+
+## Dictionary
+
+TileTactician uses the official tournament word list. The dictionary is
+embedded in the app and does not require a network connection.
+
+## Coach mode
+
+The **Coach slider** adjusts how much assistance TileTactician provides during
+analysis. Slide from full analysis (every legal play shown) down to guided
+hints (only the top play, or just a nudge toward the best area of the board).
+
+| Level      | What you see                                            |
+| ---------- | ------------------------------------------------------- |
+| **Full**   | Every legal placement, ranked by score                  |
+| **Guided** | Top 3 plays with score and position                     |
+| **Hint**   | The best play's board region highlighted, no word shown |
+| **Off**    | No analysis — use for practice or tournament prep       |
+
+Coach mode is useful for learning: start with hints, check your instinct
+against the solver, then reveal the full analysis to see what you missed.
+
+## Blunder bar
+
+After you make a play (in Play mode or manually), the **Blunder Bar** shows how
+your choice compares to the solver's top pick:
+
+- **Green** — you played the optimal move (or within 2 points of it)
+
+- **Yellow** — a reasonable play, but 3–10 points below optimal
+
+- **Red** — a blunder: more than 10 points left on the table
+
+The bar also shows the word you played, the optimal word, and the point
+difference. Tap it to expand the full result list and see where your play ranks.
+
+Use the Blunder Bar to identify patterns in your play — consistent reds on
+bingo opportunities, for example, suggest studying seven-letter word stems.
+
+## Word definitions
+
+Tap any word in the results list to open the **Define** modal, which shows the
+word's definition, part of speech, and an example sentence. Useful for learning
+unfamiliar tournament words and verifying that an obscure play is legitimate.

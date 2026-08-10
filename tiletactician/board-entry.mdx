@@ -1,0 +1,51 @@
+---
+title: "Board entry"
+description: "How to enter the current board state accurately so TileTactician's analysis matches your game."
+---
+
+
+How to enter the current board state accurately so TileTactician's analysis matches your game.
+
+## The grid
+
+TileTactician uses a standard 15×15 Scrabble grid. Each cell can hold one
+tile. Premium squares (double/triple letter, double/triple word) are marked
+automatically based on the standard Scrabble layout.
+
+## Entering tiles
+
+Tap a cell, then tap the letter you want to place. The tile appears with its
+standard Scrabble point value. Tap a placed tile to remove it.
+
+### Tips for accurate entry
+
+- **Start from the center.** The first word must cover the center star (H8).
+If you are entering a mid-game board, work outward from existing tiles.
+
+- **Double-check premium squares.** The grid highlights premium squares with
+their standard colors. A tile on the wrong premium square changes every
+score calculation downstream.
+
+- **Use the Share Extension for speed.** On iOS, you can share a board
+screenshot from any app and TileTactician will attempt to read the tiles
+automatically. See [Share Extension](/tiletactician/share-extension).
+
+## Blank tiles
+
+Tap the blank-tile toggle (the `?` button) before placing a tile to mark it as
+a blank. Blanks score zero points but can represent any letter. The solver
+treats blanks as wildcards and reports which letter each blank represents in
+the result.
+
+## Crossplay boards
+
+NYT Crossplay uses the same 15×15 grid. Switch the board format in Settings if
+your game uses Crossplay-specific premium layouts or rules.
+
+## Common mistakes
+
+| Mistake | Effect |
+|---|---|
+| Missing a tile already on the board | Solver plays through occupied cells, producing illegal results |
+| Wrong premium square | Scores are miscalculated for every word touching that cell |
+| Forgetting a blank | Solver treats it as a fixed letter, missing wildcard plays |

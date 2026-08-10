@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "project_id": "tiletactician-docs",
+  "wiki_root": "docs/wiki",
+  "agent_sot": "docs/AGENT_SOT.md",
+  "graphiti_group_id": "tiletactician-docs"
+}

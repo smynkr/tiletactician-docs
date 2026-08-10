@@ -1,0 +1,8 @@
+# Repository-internal and generated files are not Mintlify page sources.
+/docs/
+/content/
+/_migration/
+/pipeline/
+/scripts/
+/AGENTS.md
+/README.md

@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "source_index": {
+    ".codex/harness-memory.json": [
+      "ledger"
+    ],
+    "README.md": [
+      "current-state",
+      "ledger"
+    ],
+    "_migration/tools/lib/shared.mjs": [
+      "current-state",
+      "ledger"
+    ],
+    "app/global.css": [
+      "current-state",
+      "ledger"
+    ],
+    "components/brand/products.ts": [
+      "current-state",
+      "ledger"
+    ],
+    "docs.json": [
+      "current-state",
+      "ledger"
+    ],
+    "next.config.mjs": [
+      "current-state",
+      "ledger"
+    ],
+    "package.json": [
+      "current-state",
+      "ledger"
+    ],
+    "public/logo.svg": [
+      "ledger"
+    ],
+    "tiletactician/index.mdx": [
+      "current-state"
+    ]
+  },
+  "source_sha256": {
+    ".codex/harness-memory.json": "51a1be5cd6f39ff3570855233b45e81b5c1abf392a5c0bc7847a096401969da8",
+    "README.md": "76ddcc4ff9dd0c52bb3a52b6ba4b69a80182ca1c438bcfe0e1e2c68db4e42d7d",
+    "_migration/tools/lib/shared.mjs": "c9ceca1151f5034c630c563f14d50956ae0b95a3648725a66fc8541dda7bc9a9",
+    "app/global.css": "178db69473ab5375aeab6c0820d91c10c693adebfa113a9954f90a07504427ea",
+    "components/brand/products.ts": "896874ad6f0b2b973956d7945a3d2b2fc7f8bb1f6e20b889a180aee26ad18ef3",
+    "docs.json": "dcee28f68bfdc04d570806af6067db5500c294fc6fddf47c8a6927d70931a966",
+    "next.config.mjs": "afa5e69d5d2392e5844c535a5590a69f8cbf62aa64526a9646c890cae4d0f379",
+    "package.json": "ca4a69a478f94d761a83d5f61da970690294ed35eca44846ec741cb2457bf971",
+    "public/logo.svg": "b8cc7a8106ef2fa193d1bde7e0bb61fe79dfbc6ba623a3b18c4f51e356d1938f",
+    "tiletactician/index.mdx": "af48fe185ff323a083b045ebdf1ea47b9c58100c13f949a2428ea2f5fe395166"
+  }
+}

@@ -1,0 +1,36 @@
+# deps
+/node_modules
+/.pnp
+.pnp.js
+
+# next build
+/.next/
+/out/
+/build
+*.tsbuildinfo
+next-env.d.ts
+
+# fumadocs generated content
+.source
+
+# test
+/coverage
+
+# python
+__pycache__/
+*.py[cod]
+
+# misc
+.DS_Store
+*.pem
+.vercel
+.env*
+!.env.example
+.mintlify/
+*.log
+.omx/
+.omc/
+
+/.worktrees/.vercel
+.vercel
+.vercel

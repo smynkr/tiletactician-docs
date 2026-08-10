@@ -1,0 +1,73 @@
+---
+title: Endgame analysis
+description: When the bag is empty, TileTactician solves the endgame — exact
+  opponent tiles, optimal sequence, and win probability.
+---
+
+When the bag is empty, TileTactician solves the endgame — exact opponent tiles, optimal sequence, and win probability.
+
+## What is endgame mode?
+
+When the tile bag is empty, both players' tiles are fully determined: your rack
+is visible, and your opponent's rack is everything not on the board, not on
+your rack, and not in the (empty) bag. TileTactician's endgame solver uses this
+perfect information to find the optimal play sequence.
+
+## Activating endgame
+
+Endgame mode activates automatically when:
+
+- The tile bag count reaches zero (tracked via [Tile bag](/tiletactician/tile-bag))
+
+- You manually toggle it from the board toolbar (endgame icon)
+
+## What the solver computes
+
+The endgame panel shows:
+
+- **Opponent's rack** — the exact tiles your opponent holds (deduced from
+  perfect information)
+
+- **Optimal sequence** — the play order that maximizes your final score margin,
+  assuming optimal play from both sides
+
+- **Win/loss projection** — whether the current position is a win or loss under
+  perfect play, and the projected point margin
+
+- **Key decisions** — critical junctures where the choice of play changes the
+  outcome
+
+## Reading the endgame panel
+
+| Field                | Meaning                                            |
+| -------------------- | -------------------------------------------------- |
+| **Your rack**        | Tiles you currently hold                           |
+| **Opponent rack**    | Deduced opponent tiles                             |
+| **Best play**        | The solver's recommended move                      |
+| **Projected margin** | Expected final score difference (+you / −opponent) |
+| **Depth**            | How many turns ahead the solver has searched       |
+
+## Performance
+
+Endgame solving is computationally intensive — it searches the full game tree
+of remaining turns. Typical solve times:
+
+| Tiles remaining  | Time (Apple Silicon) |
+| ---------------- | -------------------- |
+| ≤ 4 tiles total  | \<  1 second         |
+| 5–8 tiles total  | 2–10 seconds         |
+| 9–14 tiles total | 10–60 seconds        |
+
+The solver runs incrementally and displays the best line found so far while
+searching deeper.
+
+## Limitations
+
+- Endgame mode assumes both players play optimally. A human opponent may not
+  follow the projected sequence.
+
+- The solver uses the embedded dictionary; if your game uses a different word
+  list, results may differ.
+
+- With more than 14 tiles remaining, the search space grows exponentially and
+  the solver may not reach full depth.

@@ -1,0 +1,61 @@
+---
+title: Tile bag & tracking
+description: Track remaining tiles in the bag, monitor what has been played, and
+  calculate draw probabilities.
+---
+
+Track remaining tiles in the bag, monitor what has been played, and calculate draw probabilities.
+
+## Tile bag
+
+The tile bag tracker shows which tiles remain undrawn, based on the standard
+Scrabble tile distribution:
+
+| Letter | Count | Letter | Count | Letter | Count |
+| ------ | ----- | ------ | ----- | ------ | ----- |
+| A      | 9     | J      | 1     | S      | 4     |
+| B      | 2     | K      | 1     | T      | 6     |
+| C      | 2     | L      | 4     | U      | 4     |
+| D      | 4     | M      | 2     | V      | 2     |
+| E      | 12    | N      | 6     | W      | 2     |
+| F      | 2     | O      | 8     | X      | 1     |
+| G      | 3     | P      | 2     | Y      | 2     |
+| H      | 2     | Q      | 1     | Z      | 1     |
+| I      | 9     | R      | 6     | Blank  | 2     |
+
+## How tracking works
+
+TileTactician tracks tiles across three pools:
+
+1. **On the board** — tiles placed during the game
+
+2. **On your rack** — your current tiles
+
+3. **In the bag** — everything else (calculated by subtraction)
+
+As you update the board and rack, the bag count adjusts automatically. The
+tracker shows:
+
+- **Remaining count** per letter
+
+- **Draw probability** — the chance of drawing a specific letter on the next
+  draw
+
+- **Bingo probability** — the chance of drawing 7 tiles that form at least one
+  bingo-eligible combination
+
+## Using tile tracking strategically
+
+- **Endgame** — when the bag is empty, you know exactly what your opponent
+  holds. See [Endgame analysis](/tiletactician/endgame).
+
+- **Exchange decisions** — if the bag is rich in vowels, exchanging consonants
+  is more likely to improve your rack.
+
+- **Defensive play** — if high-value tiles (Q, Z, X) are still in the bag,
+  avoid opening premium squares your opponent could exploit.
+
+## Crossplay differences
+
+NYT Crossplay uses the same tile distribution as Scrabble. If a future Crossplay
+variant changes the distribution, update it in Settings → Tile Distribution.

@@ -1,0 +1,54 @@
+{
+  "name": "tiletactician-docs",
+  "version": "0.0.7",
+  "private": true,
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev",
+    "memory:audit": "python3 scripts/sot_wiki/audit_harness_memory.py --repo .",
+    "memory:check": "python3 -m unittest discover -s scripts/sot_wiki -p 'test_*.py' && python3 scripts/sot_wiki/wiki_lint.py docs/wiki && python3 scripts/sot_wiki/wiki_reindex.py --check docs/wiki && python3 scripts/sot_wiki/wiki_index.py --check docs/wiki/_sources.json docs/wiki && python3 scripts/sot_wiki/wiki_to_agent_sot.py --check docs/AGENT_SOT.md docs/wiki && python3 scripts/sot_wiki/audit_harness_memory.py --repo .",
+    "memory:generate": "python3 scripts/sot_wiki/wiki_reindex.py --write docs/wiki && python3 scripts/sot_wiki/wiki_index.py --out docs/wiki/_sources.json docs/wiki && python3 scripts/sot_wiki/wiki_to_agent_sot.py --out docs/AGENT_SOT.md docs/wiki",
+    "links:check": "node scripts/check-internal-links.mjs",
+    "prebuild": "npm run test:links && npm run links:check",
+    "test:links": "node --test scripts/check-internal-links.test.mjs scripts/docs-contracts.test.mjs scripts/next-config.test.mjs && node --experimental-strip-types --test scripts/page-context.test.mjs",
+    "start": "next start",
+    "test:weekly-recap": "node --test pipeline/weekly-recap.test.mjs",
+    "test:pipeline": "node --test pipeline/weekly-recap.test.mjs pipeline/test/regression.test.mjs",
+    "types:check": "fumadocs-mdx && next typegen && tsc --noEmit",
+    "postinstall": "fumadocs-mdx"
+  },
+  "dependencies": {
+    "@icons-pack/react-simple-icons": "^13.11.1",
+    "cnfast": "^0.0.8",
+    "fumadocs-core": "16.12.0",
+    "fumadocs-mdx": "15.2.0",
+    "fumadocs-ui": "npm:@fumadocs/base-ui@16.12.0",
+    "lucide-react": "^1.25.0",
+    "mermaid": "^11.16.0",
+    "next": "16.2.11",
+    "posthog-js": "^1.407.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/mdx": "^2.0.14",
+    "@types/node": "^26.1.1",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "postcss": "^8.5.21",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6.0.3",
+    "yaml": "^2.9.0"
+  },
+  "overrides": {
+    "next": {
+      "postcss": "8.5.24"
+    }
+  },
+  "test:links": null,
+  "description": "TileTactician documentation \u2014 Scrabble and Crossplay board analysis: every legal play, ranked by score, in real time."
+}

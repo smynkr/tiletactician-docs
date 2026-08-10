@@ -1,0 +1,763 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+    
+  <url>
+    <loc>https://docs.axiomancer.io/codex/audit-export</loc>
+    <lastmod>2026-04-29T22:08:55.347Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/baa-workflow</loc>
+    <lastmod>2026-04-29T22:08:55.341Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/bitemporal-fields</loc>
+    <lastmod>2026-04-29T22:08:55.339Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/chunking-policy</loc>
+    <lastmod>2026-04-29T22:08:55.397Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/claim-fact-layer</loc>
+    <lastmod>2026-04-29T22:08:55.395Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/data-catalog</loc>
+    <lastmod>2026-04-29T22:08:55.388Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/entity-graph</loc>
+    <lastmod>2026-04-29T22:08:55.391Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/envelope-coverage</loc>
+    <lastmod>2026-04-29T22:08:55.396Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/fedramp</loc>
+    <lastmod>2026-04-18T04:04:34.963Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/getting-started</loc>
+    <lastmod>2026-04-29T22:08:55.387Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/hipaa</loc>
+    <lastmod>2026-04-18T02:30:05.481Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/hipaa-evidence-catalog</loc>
+    <lastmod>2026-04-29T22:08:55.392Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex</loc>
+    <lastmod>2026-04-29T22:08:55.389Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/iso27001</loc>
+    <lastmod>2026-04-29T22:08:55.390Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/iso27001-evidence-catalog</loc>
+    <lastmod>2026-04-29T22:08:55.393Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/join-keys</loc>
+    <lastmod>2026-04-29T22:08:55.443Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/nist-800-53</loc>
+    <lastmod>2026-04-29T22:08:55.430Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/normalization-standard</loc>
+    <lastmod>2026-04-29T22:08:55.442Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/notebooks</loc>
+    <lastmod>2026-04-29T22:08:55.437Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/pci-dss</loc>
+    <lastmod>2026-04-29T22:08:55.440Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/pci-dss-evidence-catalog</loc>
+    <lastmod>2026-04-29T22:08:55.429Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/schemas/ais-maritime</loc>
+    <lastmod>2026-04-19T06:40:59.969Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/schemas/civic-intelligence</loc>
+    <lastmod>2026-07-17T23:38:13.216Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/schemas/events-timeline</loc>
+    <lastmod>2026-04-18T09:41:15.401Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/schemas/lehd-commuter-flows</loc>
+    <lastmod>2026-04-19T01:04:17.264Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/schemas/osha-safety</loc>
+    <lastmod>2026-04-29T22:08:55.431Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/schemas/permit-signals</loc>
+    <lastmod>2026-04-29T22:08:55.432Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/schemas/poi-intelligence</loc>
+    <lastmod>2026-04-19T01:04:17.266Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/schemas/port-authority-governance</loc>
+    <lastmod>2026-04-29T22:08:55.445Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/schemas/urban-signal-grid</loc>
+    <lastmod>2026-04-29T22:08:55.477Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/soc1</loc>
+    <lastmod>2026-04-29T22:08:55.499Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/soc2</loc>
+    <lastmod>2026-04-29T22:08:55.479Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/codex/soc2-evidence-catalog</loc>
+    <lastmod>2026-04-29T22:08:55.498Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/access-reviews</loc>
+    <lastmod>2026-07-03T04:07:35.856Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/ai-usage-tracking</loc>
+    <lastmod>2026-04-29T22:08:55.483Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/audit-log</loc>
+    <lastmod>2026-04-29T22:08:55.478Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/billing</loc>
+    <lastmod>2026-07-03T04:11:19.375Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/browser-extension</loc>
+    <lastmod>2026-07-03T04:08:24.499Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/contracts</loc>
+    <lastmod>2026-04-29T22:08:55.547Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/demo-mode</loc>
+    <lastmod>2026-04-29T22:08:55.539Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/getting-started</loc>
+    <lastmod>2026-05-08T09:12:55.739Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer</loc>
+    <lastmod>2026-04-29T22:08:55.541Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/integrations/atlassian</loc>
+    <lastmod>2026-04-29T22:08:55.545Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/integrations/aws</loc>
+    <lastmod>2026-04-29T22:08:55.531Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/integrations/azure</loc>
+    <lastmod>2026-05-08T10:09:35.685Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/integrations/crowdstrike</loc>
+    <lastmod>2026-04-29T22:08:55.538Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/integrations/datadog</loc>
+    <lastmod>2026-04-29T22:08:55.540Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/integrations/gcp</loc>
+    <lastmod>2026-04-29T22:08:55.532Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/integrations/github</loc>
+    <lastmod>2026-05-08T10:01:33.283Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/integrations/google-workspace</loc>
+    <lastmod>2026-05-08T10:33:03.689Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/integrations/intune</loc>
+    <lastmod>2026-04-29T22:08:55.583Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/integrations/jamf</loc>
+    <lastmod>2026-04-29T22:08:55.584Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/integrations/jumpcloud</loc>
+    <lastmod>2026-05-08T10:33:03.687Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/integrations/microsoft-365</loc>
+    <lastmod>2026-04-29T22:08:55.576Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/integrations/notion</loc>
+    <lastmod>2026-05-08T08:23:43.321Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/integrations/okta</loc>
+    <lastmod>2026-05-08T08:28:32.398Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/integrations/overview</loc>
+    <lastmod>2026-05-08T10:33:03.714Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/integrations/slack</loc>
+    <lastmod>2026-05-01T03:32:07.882Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/mcp-server</loc>
+    <lastmod>2026-04-29T22:08:55.579Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/notifications</loc>
+    <lastmod>2026-04-29T22:08:55.629Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/offboarding</loc>
+    <lastmod>2026-04-29T22:08:55.629Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/rogue-stack</loc>
+    <lastmod>2026-07-03T04:08:24.573Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/layer/spend-management</loc>
+    <lastmod>2026-04-29T22:08:55.623Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus/api/analytics</loc>
+    <lastmod>2026-07-03T04:08:24.568Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus/api/core-scoring</loc>
+    <lastmod>2026-04-29T22:08:55.627Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus/api/data</loc>
+    <lastmod>2026-04-29T22:08:55.610Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus/api/discovery-and-intelligence</loc>
+    <lastmod>2026-07-03T04:08:24.572Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus/api/enrichment</loc>
+    <lastmod>2026-04-29T22:08:55.626Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus/api/formulas</loc>
+    <lastmod>2026-04-29T22:08:55.611Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus/api/integrations</loc>
+    <lastmod>2026-04-29T22:08:55.628Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus/api/location-data</loc>
+    <lastmod>2026-04-29T22:08:55.612Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus/api/ml-exports</loc>
+    <lastmod>2026-04-29T22:08:55.661Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus/api/monitoring</loc>
+    <lastmod>2026-04-29T22:08:55.662Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus/api/overview</loc>
+    <lastmod>2026-04-29T22:08:55.654Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus/api/portfolios</loc>
+    <lastmod>2026-04-29T22:08:55.659Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus/api/predictions</loc>
+    <lastmod>2026-04-29T22:08:55.655Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus/api/reports</loc>
+    <lastmod>2026-05-07T09:24:48.544Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus/api/scheduled-exports</loc>
+    <lastmod>2026-04-29T22:08:55.660Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus/api/webhooks</loc>
+    <lastmod>2026-04-29T22:08:55.657Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus/business-licenses</loc>
+    <lastmod>2026-04-29T22:08:55.656Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus/dashboard</loc>
+    <lastmod>2026-07-03T04:08:26.035Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus/data-standards</loc>
+    <lastmod>2026-04-29T22:08:55.705Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus/dbt-marts</loc>
+    <lastmod>2026-05-28T02:14:45.931Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus/explorer</loc>
+    <lastmod>2026-07-03T04:08:26.058Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus/getting-started</loc>
+    <lastmod>2026-04-29T22:08:55.700Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus</loc>
+    <lastmod>2026-04-29T22:08:55.702Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus/mcp-server</loc>
+    <lastmod>2026-04-29T22:08:55.699Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus/scoring-conventions</loc>
+    <lastmod>2026-07-10T07:49:29.338Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/locus/zba-decisions</loc>
+    <lastmod>2026-04-29T22:08:55.701Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/ais-coverage</loc>
+    <lastmod>2026-07-03T05:05:59.965Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/analytical-snapshots</loc>
+    <lastmod>2026-07-03T04:08:26.055Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/admin</loc>
+    <lastmod>2026-04-29T22:08:55.703Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/alerts</loc>
+    <lastmod>2026-04-29T22:08:55.705Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/berth</loc>
+    <lastmod>2026-04-29T22:08:55.757Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/congestion</loc>
+    <lastmod>2026-04-29T22:08:55.755Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/density</loc>
+    <lastmod>2026-04-29T22:08:55.745Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/disruptions</loc>
+    <lastmod>2026-04-29T22:08:55.741Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/earnings</loc>
+    <lastmod>2026-04-29T22:08:55.742Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/emissions</loc>
+    <lastmod>2026-04-29T22:08:55.747Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/estimates</loc>
+    <lastmod>2026-04-29T22:08:55.751Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/export</loc>
+    <lastmod>2026-04-29T22:08:55.756Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/fleet</loc>
+    <lastmod>2026-04-29T22:08:55.750Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/forecasts</loc>
+    <lastmod>2026-04-29T22:08:55.743Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/insurance</loc>
+    <lastmod>2026-04-29T22:08:55.794Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/investigations</loc>
+    <lastmod>2026-04-29T22:08:55.787Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/lng</loc>
+    <lastmod>2026-04-29T22:08:55.790Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/market-data</loc>
+    <lastmod>2026-05-09T00:06:14.946Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/mining</loc>
+    <lastmod>2026-04-29T22:08:55.788Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/overview</loc>
+    <lastmod>2026-04-29T22:08:55.783Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/pi</loc>
+    <lastmod>2026-04-29T22:08:55.782Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/ports</loc>
+    <lastmod>2026-04-29T22:08:55.784Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/risk</loc>
+    <lastmod>2026-04-29T22:08:55.786Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/river-levels</loc>
+    <lastmod>2026-04-29T22:08:55.781Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/routes</loc>
+    <lastmod>2026-04-29T22:08:55.834Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/sanctions</loc>
+    <lastmod>2026-07-03T04:08:26.948Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/sar-coverage</loc>
+    <lastmod>2026-04-29T22:08:55.824Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/satellite</loc>
+    <lastmod>2026-04-29T22:08:55.828Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/sdk</loc>
+    <lastmod>2026-04-29T22:08:55.833Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/trade-flows</loc>
+    <lastmod>2026-04-18T03:02:56.481Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/ubo</loc>
+    <lastmod>2026-07-09T00:45:55.280Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/vessels</loc>
+    <lastmod>2026-04-29T22:08:55.827Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/watchlist</loc>
+    <lastmod>2026-04-29T22:08:55.833Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/api/webhooks</loc>
+    <lastmod>2026-04-29T22:08:55.826Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/data-retention</loc>
+    <lastmod>2026-04-29T22:08:55.829Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/getting-started</loc>
+    <lastmod>2026-04-29T22:08:55.877Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch</loc>
+    <lastmod>2026-04-29T22:08:55.872Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/methodology/cargo-validation</loc>
+    <lastmod>2026-05-06T20:32:59.973Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/methodology/chokepoint-transits</loc>
+    <lastmod>2026-04-28T22:45:10.181Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/methodology/encounter-extraction</loc>
+    <lastmod>2026-04-29T18:12:31.960Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/methodology/entity-resolution</loc>
+    <lastmod>2026-07-03T04:08:26.966Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/methodology/route-forecasts</loc>
+    <lastmod>2026-04-29T22:08:55.867Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/methodology/temporal-edges</loc>
+    <lastmod>2026-04-29T10:13:31.451Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/methodology/voyage-time-allocation</loc>
+    <lastmod>2026-04-29T22:08:55.875Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/overwatch/status-page</loc>
+    <lastmod>2026-04-29T22:08:55.866Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/routeshift/api/admin</loc>
+    <lastmod>2026-07-14T05:45:18.162Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/routeshift/api/chat-completions</loc>
+    <lastmod>2026-07-10T09:23:42.399Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/routeshift/api/overview</loc>
+    <lastmod>2026-04-29T22:08:55.871Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/routeshift/billing</loc>
+    <lastmod>2026-07-03T04:11:19.593Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/routeshift/budgets</loc>
+    <lastmod>2026-04-29T22:08:55.870Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/routeshift/file-parser</loc>
+    <lastmod>2026-07-17T23:29:38.824Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/routeshift/getting-started</loc>
+    <lastmod>2026-04-29T22:08:55.906Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/routeshift</loc>
+    <lastmod>2026-04-29T21:53:48.328Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/routeshift/keys</loc>
+    <lastmod>2026-07-09T06:33:30.271Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/routeshift/observability</loc>
+    <lastmod>2026-04-29T22:08:55.905Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/routeshift/optimize</loc>
+    <lastmod>2026-04-29T22:08:55.901Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/routeshift/presets</loc>
+    <lastmod>2026-07-17T23:27:26.162Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/routeshift/providers</loc>
+    <lastmod>2026-07-03T04:06:52.755Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/routeshift/routing</loc>
+    <lastmod>2026-04-29T22:08:55.903Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/routeshift/savings-and-pricing</loc>
+    <lastmod>2026-04-29T22:08:55.902Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/routeshift/sso-device-flow</loc>
+    <lastmod>2026-07-09T06:33:30.272Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/routeshift/team</loc>
+    <lastmod>2026-07-09T06:33:30.817Z</lastmod>
+  </url>
+
+  <url>
+    <loc>https://docs.axiomancer.io/routeshift/web-search</loc>
+    <lastmod>2026-07-17T23:29:38.823Z</lastmod>
+  </url>
+</urlset>

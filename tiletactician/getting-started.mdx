@@ -1,0 +1,85 @@
+---
+title: "Getting started"
+description: "Install TileTactician, enter your first board, and run your first analysis in under two minutes."
+---
+
+
+Install TileTactician, enter your first board, and run your first analysis in under two minutes.
+
+## Install
+
+TileTactician is an Expo / React Native app. Install it on your iOS device
+from the App Store, or run it locally for development:
+
+```
+git clone https://github.com/smynkr/Crossplay-Pro.git
+cd Crossplay-Pro
+npm install
+npx expo start
+```
+
+Scan the QR code with Expo Go (Android) or the Camera app (iOS) to launch.
+
+## Your first analysis
+
+1. Open TileTactician.
+
+2. Tap **New Board** or edit the default empty board.
+
+3. Place tiles on the grid to match the current game state — see
+[Board entry](/tiletactician/board-entry) for tips.
+
+4. Enter your rack tiles in the rack bar at the bottom.
+
+5. Tap **Analyze Board**.
+
+The solver begins searching immediately. Results stream in as they are found —
+the top play appears within milliseconds on a mid-game board, and the full
+ranked list completes in under 500 ms on Apple Silicon.
+
+## What the results show
+
+Each result row displays:
+
+- **Word** — the primary word formed
+
+- **Score** — total points including premium squares
+
+- **Position** — grid coordinates and direction (across / down)
+
+- **Cross-words** — any secondary words formed perpendicular to the play
+
+Results are sorted by score descending. Tap any row to preview the placement
+on the board.
+
+## Next steps
+
+- [Board entry](/tiletactician/board-entry) — how to set up the grid accurately
+
+- [Rack analysis](/tiletactician/rack-analysis) — understanding scoring and play ranking
+
+- [Share Extension](/tiletactician/share-extension) — analyze from a screenshot on iOS
+
+<ProcessFlow
+  accent="#F59E0B"
+  caption="From install to ranked results: the app's analysis workflow — install, enter the board, add your rack, analyze, and review."
+  steps={[
+    { title: "Install", description: "Get TileTactician from the App Store, or run the Expo app locally." },
+    { title: "Enter the board", description: "Place tiles on the 15×15 grid to match the current game state, or scan it." },
+    { title: "Add your rack", description: "Enter your tiles in the rack bar at the bottom." },
+    { title: "Analyze", description: "Tap Analyze Board — results stream in as the solver searches." },
+    { title: "Review results", description: "Tap any ranked play to preview its placement on the board." },
+  ]}
+/>
+
+<Cards>
+  <Card title="Board entry" icon="grid-2x2" href="/tiletactician/board-entry">
+    Set up the grid accurately, including blanks and Crossplay boards.
+  </Card>
+  <Card title="Board scanning" icon="scan-line" href="/tiletactician/board-scanning">
+    Import a board from a photo or screenshot instead of entering tiles.
+  </Card>
+  <Card title="Rack analysis" icon="trophy" href="/tiletactician/rack-analysis">
+    How plays are scored, ranked, and explained.
+  </Card>
+</Cards>

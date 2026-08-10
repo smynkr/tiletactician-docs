@@ -1,0 +1,391 @@
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
+
+/* ---------------------------------------------------------------------------
+ * TileTactician brand theme
+ *
+ * The brand is the game board at night: a near-black void with a single,
+ * deliberate point of light. Amber (#F59E0B) is the signal — the one
+ * interaction color.
+ *
+ * Palette (from the app's globals.css and the live docs site):
+ *   void #0A0A0F (app splash background) · surface #111111 · elevated #1A1A1A
+ *   border-subtle #222222 · border-strong #3A3A3A
+ *   signal amber #F59E0B · amber-light #FBBF24 · amber-dark #B45309
+ * ------------------------------------------------------------------------- */
+
+@theme {
+  /* Typography — Playfair for the brand voice, Inter for everything functional */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* TileTactician accent palette, exposed as Tailwind colors */
+  --color-tt-accent: #f59e0b;
+  --color-tt-accent-light: #fbbf24;
+  --color-tt-accent-dark: #b45309;
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+html > body[data-scroll-locked] {
+  margin-right: 0px !important;
+  --removed-body-scroll-bar-size: 0px !important;
+}
+
+/* ---------------------------------------------------------------------------
+ * Light theme — paper, but still TileTactician. Amber darkens for contrast.
+ * (Declared before .dark so the dark void wins when .dark is present —
+ *  both selectors have equal specificity, so source order decides.)
+ * ------------------------------------------------------------------------- */
+:root {
+  --color-fd-background: #fafafa;
+  --color-fd-foreground: #161616;
+  --color-fd-muted: #f1f1f2;
+  --color-fd-muted-foreground: #5c5c5c;
+  --color-fd-popover: #ffffff;
+  --color-fd-popover-foreground: #1a1a1a;
+  --color-fd-card: #f4f4f5;
+  --color-fd-card-foreground: #161616;
+  --color-fd-border: #e2e2e4;
+  --color-fd-primary: #b45309;
+  --color-fd-primary-foreground: #ffffff;
+  --color-fd-secondary: #ececee;
+  --color-fd-secondary-foreground: #161616;
+  --color-fd-accent: rgba(180, 83, 9, 0.1);
+  --color-fd-accent-foreground: #92400e;
+  --color-fd-ring: #b45309;
+  --color-fd-overlay: rgba(0, 0, 0, 0.25);
+}
+
+/* ---------------------------------------------------------------------------
+ * Dark theme — the void. This is the brand at home (the app is dark-first).
+ * ------------------------------------------------------------------------- */
+.dark {
+  --color-fd-background: #0a0a0f;
+  --color-fd-foreground: #e8e8e8;
+  --color-fd-muted: #111114;
+  --color-fd-muted-foreground: #8f8f8f;
+  --color-fd-popover: #141418;
+  --color-fd-popover-foreground: #e0e0e0;
+  --color-fd-card: #111114;
+  --color-fd-card-foreground: #f2f2f2;
+  --color-fd-border: #232327;
+  --color-fd-primary: #f59e0b;
+  --color-fd-primary-foreground: #1a1202;
+  --color-fd-secondary: #16161a;
+  --color-fd-secondary-foreground: #e8e8e8;
+  --color-fd-accent: rgba(245, 158, 11, 0.14);
+  --color-fd-accent-foreground: #fbbf24;
+  --color-fd-ring: #f59e0b;
+  --color-fd-overlay: rgba(0, 0, 0, 0.6);
+}
+
+.dark #nd-sidebar {
+  --color-fd-muted: #0f0f0f;
+  --color-fd-secondary: #131313;
+  --color-fd-muted-foreground: #8a8a8a;
+}
+
+/* ---------------------------------------------------------------------------
+ * Prose — the reading experience.
+ * Per DESIGN.md: Playfair is reserved for the display moment (the page
+ * title, rendered as the article h1). Prose section headings (h2, h3) use
+ * Inter, the workhorse. Body stays Inter.
+ * ------------------------------------------------------------------------- */
+.prose {
+  --tw-prose-body: var(--color-fd-foreground);
+  color: var(--color-fd-foreground);
+}
+
+/* Page title — the single serif moment on every docs page */
+.prose :where(h1):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-fd-card-foreground);
+}
+
+/* Section headings — Inter, not serif */
+.prose :where(h2, h3):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-fd-card-foreground);
+}
+
+.dark .prose :where(h1, h2, h3):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+  color: #ffffff;
+}
+
+/* Links are the signal */
+.prose :where(a):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+  color: var(--color-fd-primary);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-fd-primary) 35%, transparent);
+  transition: border-color 150ms ease, color 150ms ease;
+}
+.prose :where(a):not(:where([class~='not-prose'], [class~='not-prose'] *)):hover {
+  border-bottom-color: var(--color-fd-primary);
+}
+
+/* Heading self-anchors are NOT links. Fumadocs wraps each heading's text in an
+   <a href="#slug"> so the copy-anchor control has a target, which means the
+   "links are the signal" rule above would paint every h1–h6 cyan + underlined —
+   an affordance lie (a heading that looks clickable) that also inverts
+   hierarchy, making an h2 shout louder than the white serif h1.    Cyan stays reserved for real, navigational links; a heading's own anchor
+   inherits the heading's ink (white in the void, near-black on paper) with no
+   underline. Specificity is the load-bearing detail: the heading names sit
+   inside :where(), which contributes ZERO specificity, but the `a` is a bare
+   element selector, so this rule lands at (0,1,1) and beats the link rule
+   above at (0,1,0) regardless of source order, in both themes (verified on the
+   built site and cross-checked by two independent reviewers). Do not "tidy" the
+   heading names into :is() on the assumption that :where() zeroed the rule — the
+   winning specificity comes from the `a`, not the heading names. */
+.prose :where(h1, h2, h3, h4, h5, h6) a:not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+  color: inherit;
+  border-bottom: 0;
+}
+.prose :where(h1, h2, h3, h4, h5, h6) a:not(:where([class~='not-prose'], [class~='not-prose'] *)):hover {
+  color: inherit;
+}
+
+/* Inline code — a quiet, neutral chip. Cyan is reserved for interaction,
+   and inline code is not interactive. */
+.prose :where(code):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  border-radius: 6px;
+  padding: 0.15em 0.4em;
+  background: color-mix(in srgb, var(--color-fd-foreground) 7%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-fd-foreground) 14%, transparent);
+  color: var(--color-fd-foreground);
+  font-weight: 500;
+}
+.prose :where(code)::before,
+.prose :where(code)::after {
+  content: none;
+}
+
+/* Tables — precision instrument, hairline rules */
+.prose :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+  font-size: 0.875rem;
+}
+.prose :where(th):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-fd-muted-foreground);
+}
+
+/* Blockquote — the margin note. Neutral border, not cyan. */
+.prose :where(blockquote):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+  border-inline-start: 2px solid var(--color-fd-border);
+  font-style: normal;
+  color: var(--color-fd-muted-foreground);
+}
+
+/* ---------------------------------------------------------------------------
+ * Docs page title — the single serif moment on every page.
+ * ------------------------------------------------------------------------- */
+#nd-page h1,
+[data-fumadocs='docs-title'],
+.nd-docs-title,
+article h1:first-of-type {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* ---------------------------------------------------------------------------
+ * Sidebar — product sections read as instruments, not folders.
+ * ------------------------------------------------------------------------- */
+#nd-sidebar {
+  font-family: var(--font-sans);
+}
+
+/* Fumadocs 16.12.0 marks the compact mobile controls with these stable
+   attributes. Keep their touch target at the platform-recommended 44px
+   without replacing the library header or drawer. */
+@media (max-width: 767px) {
+  #nd-subnav [data-search],
+  #nd-subnav button[aria-controls='nd-sidebar-mobile'] {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+  }
+
+  #nd-sidebar-mobile [data-search],
+  #nd-sidebar-mobile button[aria-controls='nd-sidebar-mobile'] {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+  }
+}
+
+/* Page actions stay grouped and comfortable when labels wrap on narrow screens. */
+.ax-page-actions {
+  flex-wrap: wrap;
+}
+.ax-page-actions > :where(a, button) {
+  min-height: 2.75rem;
+}
+@media (min-width: 640px) {
+  .ax-page-actions > :where(a, button) {
+    min-height: 2.25rem;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Signature components
+ * ------------------------------------------------------------------------- */
+
+/* Live badge — "this is alive" */
+.ax-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  background: rgba(0, 212, 255, 0.06);
+  color: #00d4ff;
+  border-radius: 9999px;
+  padding: 0.3rem 0.85rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-family: var(--font-sans);
+}
+/* The pulsing signal dot — works standalone or inside a badge */
+.ax-live-dot {
+  display: inline-block;
+  background: #00d4ff;
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.9);
+  animation: ax-pulse 2s ease-in-out infinite;
+}
+.ax-live-badge .ax-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+}
+@keyframes ax-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+/* Metric block — the brand asserts a number */
+.ax-metric-value {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+}
+/* Light mode only — `:root` also matches `.dark`, so scope with :not(.dark)
+   or the dark theme gets the light ink color (near-black on near-black). */
+:root:not(.dark) .ax-metric-value { color: #161616; }
+.ax-metric-label {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-fd-muted-foreground);
+}
+
+/* Section eyebrow */
+.ax-eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-fd-primary);
+}
+
+/* Glow — reserved for the single most important interaction */
+.ax-glow {
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3), 0 0 40px rgba(0, 212, 255, 0.1);
+}
+
+/* Constellation canvas sits behind the hero. A <canvas> is a replaced
+   element, so `inset: 0` alone does NOT stretch it — with width/height left
+   auto it falls back to its intrinsic 300×150 and the star field renders in a
+   small patch at the panel's top-left instead of filling it. Size it
+   explicitly so the field always covers its panel. */
+.ax-constellation {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Telemetry feed rows slide in as they rotate */
+@keyframes ax-feed-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.ax-feed-row {
+  animation: ax-feed-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Hero headline underline sweep */
+@keyframes ax-underline {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* Word-by-word headline reveal */
+@keyframes ax-word-in {
+  from { opacity: 0; transform: translateY(0.35em); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Product accent utilities */
+.ax-accent-overwatch { --ax-accent: #e5a836; }
+.ax-accent-locus { --ax-accent: #6366f1; }
+.ax-accent-codex { --ax-accent: #d4a574; }
+.ax-accent-layer { --ax-accent: #f472b6; }
+.ax-accent-routeshift { --ax-accent: #34d399; }
+
+/* Diagram figure frame */
+.ax-figure {
+  border: 1px solid var(--color-fd-border);
+  border-radius: 16px;
+  background: var(--color-fd-card);
+  overflow: hidden;
+}
+.ax-figure figcaption {
+  font-size: 0.8rem;
+  color: var(--color-fd-muted-foreground);
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--color-fd-border);
+  font-family: var(--font-sans);
+}
+
+/* Reduced motion — pause every decorative and interaction animation. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .ax-constellation {
+    display: none;
+  }
+
+  .ax-feed-row {
+    opacity: 1 !important;
+  }
+}

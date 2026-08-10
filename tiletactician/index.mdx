@@ -1,0 +1,54 @@
+---
+title: "TileTactician"
+description: "TileTactician Scrabble and Crossplay board analysis — find every legal play, ranked by score, in real time."
+---
+
+import { CircleHelp, Flag, Grid2x2, History, Rocket, ScanLine, Share2, ShoppingBag, Trophy } from 'lucide-react';
+
+TileTactician (CrossPlayer Pro) is a Scrabble and NYT Crossplay board
+analysis app: enter the board, enter your rack, and every legal play appears
+ranked by score in real time. The solver streams results as it searches — the
+top play lands within milliseconds on a mid-game board — and the full
+tournament dictionary is embedded, so analysis works fully offline.
+
+<ProductPreview
+  src="/screenshots/tiletactician.png"
+  alt="TileTactician landing page: board solver with every legal word ranked by score, plus browsable word lists"
+  accent="#F59E0B"
+  caption="Know every word. Play the board that wins — the solver ranks every legal placement by score in real time."
+  highlights={[
+    { text: "Enter or scan the board, add your rack, and get every legal play ranked by score.", icon: Grid2x2 },
+    { text: "On-device solver with the embedded tournament dictionary — works offline.", icon: Trophy },
+    { text: "Endgame solver, tile bag tracking, and a iOS Share Extension for screenshots.", icon: ScanLine },
+  ]}
+/>
+
+<Cards>
+  <Card icon={<Rocket />} title="Getting started" href="/tiletactician/getting-started">
+    Install, enter your first board, and run your first analysis in under two minutes.
+  </Card>
+  <Card icon={<Grid2x2 />} title="Board entry" href="/tiletactician/board-entry">
+    Set up the grid accurately so analysis matches your game.
+  </Card>
+  <Card icon={<ScanLine />} title="Board scanning" href="/tiletactician/board-scanning">
+    Import a board from a photo or screenshot — no manual entry needed.
+  </Card>
+  <Card icon={<Trophy />} title="Rack analysis" href="/tiletactician/rack-analysis">
+    Scoring rules, play ranking, coach mode, and the blunder bar.
+  </Card>
+  <Card icon={<Flag />} title="Endgame analysis" href="/tiletactician/endgame">
+    Perfect-information endgame solving when the bag is empty.
+  </Card>
+  <Card icon={<ShoppingBag />} title="Tile bag & tracking" href="/tiletactician/tile-bag">
+    Track remaining tiles and draw probabilities.
+  </Card>
+  <Card icon={<Share2 />} title="Share Extension" href="/tiletactician/share-extension">
+    Analyze a board screenshot shared from any iOS app.
+  </Card>
+  <Card icon={<CircleHelp />} title="FAQ" href="/tiletactician/faq">
+    Common questions and troubleshooting.
+  </Card>
+  <Card icon={<History />} title="Changelog" href="/tiletactician/changelog">
+    What's new in TileTactician documentation.
+  </Card>
+</Cards>

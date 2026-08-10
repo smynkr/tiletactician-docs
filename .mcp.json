@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "graphiti": {
+      "type": "http",
+      "url": "${GRAPHITI_MCP_URL:-https://mem.axiomlocus.io/mcp}",
+      "headers": {
+        "CF-Access-Client-Id": "${CF_ACCESS_CLIENT_ID}",
+        "CF-Access-Client-Secret": "${CF_ACCESS_CLIENT_SECRET}"
+      }
+    }
+  }
+}

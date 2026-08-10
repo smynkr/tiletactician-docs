@@ -1,0 +1,89 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "TileTactician",
+  "description": "TileTactician documentation \u2014 Scrabble and Crossplay board analysis: every legal play, ranked by score, in real time.",
+  "colors": {
+    "primary": "#F59E0B",
+    "light": "#FBBF24",
+    "dark": "#B45309"
+  },
+  "favicon": "/favicon.svg",
+  "logo": {
+    "light": "/logo.svg",
+    "dark": "/logo.svg",
+    "href": "https://tiletactician.com"
+  },
+  "navigation": {
+    "products": [
+      {
+        "product": "TileTactician",
+        "description": "Scrabble and Crossplay board analysis — every legal play, ranked by score, in real time.",
+        "icon": "grid-2x2",
+        "tabs": [
+          {
+            "tab": "Documentation",
+            "groups": [
+              {
+                "group": "Get started",
+                "icon": "rocket",
+                "pages": [
+                  "tiletactician/index",
+                  "tiletactician/getting-started"
+                ]
+              },
+              {
+                "group": "Game analysis",
+                "icon": "target",
+                "pages": [
+                  "tiletactician/board-entry",
+                  "tiletactician/board-scanning",
+                  "tiletactician/rack-analysis",
+                  "tiletactician/endgame",
+                  "tiletactician/tile-bag"
+                ]
+              },
+              {
+                "group": "App",
+                "icon": "share-2",
+                "pages": [
+                  "tiletactician/share-extension"
+                ]
+              },
+              {
+                "group": "Support",
+                "icon": "circle-help",
+                "pages": [
+                  "tiletactician/faq",
+                  "tiletactician/changelog"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": []
+    }
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "TileTactician",
+        "href": "https://tiletactician.com"
+      }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/smynkr/Crossplay-Pro"
+    }
+  },
+  "seo": {
+    "indexing": "navigable"
+  },
+  "interaction": {
+    "drilldown": true
+  }
+}

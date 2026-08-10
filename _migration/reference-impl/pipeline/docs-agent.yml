@@ -1,0 +1,205 @@
+# docs-agent — self-hosted replacement for Mintlify's "Agent"/"Automations".
+#
+# IMPORTANT — this file's real home is `.github/workflows/docs-agent.yml` in
+# EACH of the 5 product repos (or a central automation repo using
+# `workflow_call`/`repository_dispatch` if you'd rather not duplicate it 5x).
+# It's checked in here under `pipeline/` per the source task, not under
+# `.github/workflows/`, so copy it into place before it will actually run.
+#
+# THE HONEST PICTURE (full detail + citations in README.md — read it before
+# flipping DOCS_AGENT_MODE to "hosted"):
+#   None of the three CLI subscriptions the team already pays for (Claude
+#   Code Max, ChatGPT Plus/Pro/Team for Codex, a personal Gemini login) can
+#   drive UNATTENDED generation on a GitHub-hosted runner:
+#     - Claude: `claude setup-token` OAuth works, but the token expires in
+#       ~1 day with no refresh support in claude-code-action (open upstream
+#       issue anthropics/claude-code-action#727) — mechanically broken for
+#       scheduled/webhook CI. Anthropic's own subscription-vs-API guidance
+#       also points automated/unattended use at the metered API, not the
+#       subscription.
+#     - Codex: the official Codex GitHub Action documents OPENAI_API_KEY as
+#       the only supported credential; ChatGPT subscription login is not
+#       usable by the Action today (tracked as a feature request upstream).
+#     - Gemini: the documented non-interactive/CI path is GEMINI_API_KEY;
+#       personal OAuth login is for interactive terminal sessions.
+#   So this workflow defaults to a FREE "detect" step (no LLM call at all —
+#   just `gh` against the GitHub API) that flags PRs likely needing a docs
+#   update and asks a human to run `npm run docs:sync` LOCALLY, where the
+#   already-authenticated subscription CLI is used at zero marginal cost.
+#   Full hosted generation (this workflow calling docs-agent.mjs directly,
+#   with a metered API key) is available but opt-in via the
+#   DOCS_AGENT_MODE=hosted repo variable — realistic cost is small (see
+#   README.md, roughly $0.03-$0.20 per PR depending on backend) but it is
+#   real metered spend on top of the subscriptions, not covered by them.
+
+name: docs-agent
+
+on:
+  pull_request:
+    types: [closed]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR number to draft docs for (defaults to the triggering PR)"
+        required: false
+        type: string
+      mode:
+        description: "Override DOCS_AGENT_MODE for this run"
+        required: false
+        type: choice
+        options: [detect, hosted]
+        default: detect
+      backend:
+        description: "LLM CLI backend for hosted mode"
+        required: false
+        type: choice
+        options: [claude, codex, gemini]
+        default: claude
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+env:
+  # Edit per product repo when you copy this file in.
+  DOCS_AGENT_PRODUCT: ${{ vars.DOCS_AGENT_PRODUCT || 'layer' }}
+  DOCS_AGENT_DOCS_REPO: ${{ vars.DOCS_AGENT_DOCS_REPO || 'your-org/axiom-docs' }}
+  # "detect" (free, default) or "hosted" (calls an LLM, metered). Set as a
+  # repo/org Actions VARIABLE (not secret) — see README.md "Setup".
+  DOCS_AGENT_MODE: ${{ inputs.mode || vars.DOCS_AGENT_MODE || 'detect' }}
+
+jobs:
+  detect:
+    name: detect (free — no LLM call)
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    outputs:
+      needs_docs: ${{ steps.check.outputs.needs_docs }}
+      pr_number: ${{ steps.check.outputs.pr_number }}
+    steps:
+      - name: Resolve PR number
+        id: pr
+        run: |
+          PR="${{ inputs.pr_number || github.event.pull_request.number }}"
+          if [ -z "$PR" ]; then echo "No PR number resolved" >&2; exit 1; fi
+          echo "pr_number=$PR" >> "$GITHUB_OUTPUT"
+
+      - name: List changed files and apply the same exclude filter as docs-agent.mjs
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ steps.pr.outputs.pr_number }}
+        run: |
+          FILES=$(gh pr view "$PR" --repo "${{ github.repository }}" --json files -q '.files[].path')
+          echo "Changed files:"
+          echo "$FILES"
+          # Mirrors DEFAULT_EXCLUDE_GLOBS in docs-agent.mjs — keep these two
+          # lists in sync by hand; there are only two of them and it isn't
+          # worth a shared-config dependency for a 12-line list.
+          KEPT=$(echo "$FILES" | grep -vE \
+            '(package-lock\.json|pnpm-lock\.yaml|yarn\.lock|Cargo\.lock|go\.sum|\.test\.|\.spec\.|/__tests__/|/test/|/tests/|^\.github/|/node_modules/|/dist/|/build/|/\.next/|\.snap$|/scripts/internal/)' \
+            || true)
+          echo "User-facing (kept):"
+          echo "$KEPT"
+          echo "pr_number=$PR" >> "$GITHUB_OUTPUT"
+          if [ -n "$KEPT" ]; then
+            echo "needs_docs=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "needs_docs=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  notify:
+    name: notify (free — default path)
+    needs: detect
+    if: needs.detect.outputs.needs_docs == 'true' && env.DOCS_AGENT_MODE != 'hosted'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment on the merged PR asking for a local docs sync
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ needs.detect.outputs.pr_number }}
+        run: |
+          gh pr comment "$PR" --repo "${{ github.repository }}" --body "$(cat <<'MSG'
+          **docs-agent**: this PR touched user-facing code. Run the docs sync
+          locally to draft the doc update at zero marginal cost (uses your
+          already-authenticated Claude Code / Codex / Gemini CLI subscription,
+          not a metered key):
+
+          \`\`\`
+          npm run docs:sync -- --pr ${{ needs.detect.outputs.pr_number || 'PR_NUMBER' }}
+          \`\`\`
+
+          See pipeline/README.md for why this runs locally by default instead
+          of in CI, and how to opt into full hosted automation if you want it.
+          MSG
+          )"
+
+  hosted:
+    name: hosted (opt-in — calls an LLM, metered)
+    needs: detect
+    if: needs.detect.outputs.needs_docs == 'true' && env.DOCS_AGENT_MODE == 'hosted'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout docs repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.DOCS_AGENT_DOCS_REPO }}
+          # Default GITHUB_TOKEN is scoped to THIS repo only and cannot open
+          # a PR against a different repo. Needs a PAT (fine-grained,
+          # contents:write + pull-requests:write on the docs repo only)
+          # stored as a secret. See README.md "Setup > hosted mode".
+          token: ${{ secrets.DOCS_REPO_PAT }}
+          path: axiom-docs
+
+      - name: Checkout this pipeline's driver script
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: pipeline
+          path: self
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install backend CLI
+        env:
+          BACKEND: ${{ inputs.backend || 'claude' }}
+        run: |
+          case "$BACKEND" in
+            claude) npm install -g @anthropic-ai/claude-code ;;
+            codex)  npm install -g @openai/codex ;;
+            gemini) npm install -g @google/gemini-cli ;;
+            *) echo "unknown backend $BACKEND" >&2; exit 1 ;;
+          esac
+          # Package names verified against each vendor's install docs as of
+          # 2026-07-22 — re-check before relying on this if it starts failing;
+          # these packages get renamed/relocated across major CLI versions.
+
+      - name: Run docs-agent.mjs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # Exactly ONE of these needs a real value, matching --backend below.
+          # All three are METERED — see README.md for why the subscription
+          # cannot be used here.
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          DOCS_AGENT_LOG_DIR: ${{ github.workspace }}/docs-agent-logs
+        run: |
+          node self/pipeline/docs-agent.mjs \
+            --repo "${{ github.repository }}" \
+            --pr "${{ needs.detect.outputs.pr_number }}" \
+            --docs-repo "${{ env.DOCS_AGENT_DOCS_REPO }}" \
+            --docs-repo-path "$(pwd)/axiom-docs" \
+            --product "${{ env.DOCS_AGENT_PRODUCT }}" \
+            --backend "${{ inputs.backend || 'claude' }}" \
+            --draft
+
+      - name: Upload debug logs (prompt + raw model output)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-agent-logs-${{ needs.detect.outputs.pr_number }}
+          path: docs-agent-logs/
+          retention-days: 14

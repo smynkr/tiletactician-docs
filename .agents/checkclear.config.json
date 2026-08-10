@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "required_stores": [
+    "local_breadcrumb",
+    "graphiti"
+  ],
+  "guard": "Never expose secrets or change production state, ticket state, ownership, or Git history during checkclear.",
+  "stores": {
+    "local_breadcrumb": {
+      "enabled": true,
+      "path": ".agents/checkpoints",
+      "how": "Write LATEST.md and CHECKPOINT-<UTC timestamp>.md with the same standalone resume brief.",
+      "readback": "test -s .agents/checkpoints/LATEST.md"
+    },
+    "graphiti": {
+      "enabled": true,
+      "group_id": "tiletactician-docs",
+      "how": "Write one concise redacted episodic handoff using group_id tiletactician-docs after the local breadcrumb is verified.",
+      "readback": "Search group tiletactician-docs for a distinctive non-sensitive phrase from the handoff."
+    }
+  }
+}
