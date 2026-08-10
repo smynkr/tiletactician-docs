@@ -502,7 +502,7 @@ function findCandidateDocsPages(docsRepoPath, product, keywords, maxPages, stand
 // Step 3: build the prompt
 // ---------------------------------------------------------------------------
 
-function buildPrompt({ prMeta, filteredDiff, droppedPaths, oversizedPaths, candidatePages, docsRepoPath, standalone }) {
+function buildPrompt({ prMeta, filteredDiff, droppedPaths, oversizedPaths, candidatePages, docsRepoPath, standalone, product }) {
   const pagesSection = candidatePages
     .map((p) => {
       const rel = path.relative(docsRepoPath, p);
@@ -513,7 +513,17 @@ function buildPrompt({ prMeta, filteredDiff, droppedPaths, oversizedPaths, candi
 
   // Standalone docs repos (docs.<product>.com) author flat MDX at the site
   // root; the multi-product Axiom docs site nests one directory per product.
-  const siteName = standalone ? "TileTactician" : "Axiom";
+  // The standalone site name is the product's brand name (--product is the
+  // lowercase form), not the Axiom identity.
+  const STANDALONE_SITE_NAMES = {
+    menuwright: 'MenuWright',
+    infolitico: 'Infolitico',
+    dontdiefishing: 'DontDieFishing',
+    tiletactician: 'TileTactician',
+  };
+  const siteName = standalone
+    ? (STANDALONE_SITE_NAMES[product] || product.charAt(0).toUpperCase() + product.slice(1))
+    : 'Axiom';
   const sourceShape = standalone
     ? "authored as flat Mintlify-flavored MDX source files at the docs-repo root (the site root)"
     : "authored as flat Mintlify-flavored MDX source files at the docs-repo root (one directory per product)";
@@ -1317,7 +1327,7 @@ async function main() {
   const candidatePages = findCandidateDocsPages(opts.docsRepoPath, opts.product, keywords, opts.maxPages, opts.standalone);
   log(`candidate docs pages: ${candidatePages.map((p) => path.relative(opts.docsRepoPath, p)).join(", ") || "(none found)"}`);
 
-  const prompt = buildPrompt({ prMeta, filteredDiff, droppedPaths, oversizedPaths, candidatePages, docsRepoPath: opts.docsRepoPath, standalone: opts.standalone });
+  const prompt = buildPrompt({ prMeta, filteredDiff, droppedPaths, oversizedPaths, candidatePages, docsRepoPath: opts.docsRepoPath, standalone: opts.standalone, product: opts.product });
 
   // Persist the prompt + raw output for debugging — especially important in
   // hosted CI where you can't just re-run interactively to see what happened.
