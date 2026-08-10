@@ -3,6 +3,7 @@ import './global.css';
 import { Inter, JetBrains_Mono, Playfair_Display } from 'next/font/google';
 import { DocsSearchDialog } from '@/components/docs-search-dialog';
 import { PostHogProvider } from '@/components/posthog-provider';
+import { Intercom } from '@/components/intercom';
 import type { Metadata } from 'next';
 
 const inter = Inter({
@@ -61,6 +62,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     >
       <body className={[inter.variable, playfair.variable, jetbrainsMono.variable].join(' ')}>
         <PostHogProvider>
+          <Intercom />
           <RootProvider search={{ SearchDialog: DocsSearchDialog }}>
             {children}
           </RootProvider>
