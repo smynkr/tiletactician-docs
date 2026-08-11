@@ -1,13 +1,34 @@
 ---
 title: Durable ledger
 category: current-state
-updated: 2026-08-10
+updated: 2026-08-11
 summary: Dated durable facts and their source anchors
 nav_order: 130
 sources: [".codex/harness-memory.json", "README.md", "package.json", "next.config.mjs", "docs.json", "_migration/tools/lib/shared.mjs", "components/brand/products.ts", "app/global.css", "public/logo.svg"]
 ---
 
 # Durable ledger
+
+
+## 2026-08-11 — Harness-memory conformance (audit FAIL → PASS)
+
+- Added `docs/wiki/_schema.md` (schema + routing + capture contract; group_id
+  boundary, content-boundary section, memory gates, Hindsight/Mem Palace
+  fully-archived marker). The wiki previously had only index/current-state/
+  ledger and failed the harness-memory audit on the missing schema and the
+  missing archived-memory marker.
+- AGENTS.md: added the Hindsight and Mem Palace fully-archived marker to
+  Memory routing.
+- Regenerated `docs/AGENT_SOT.md` + `docs/wiki/_sources.json`
+  (`npm run memory:generate`); `npm run memory:check` passes and
+  `audit-repo.mjs` reports PASS.
+
+Re-establish with:
+
+```bash
+npm run memory:check
+node ~/.codex/skills/harness-memory/scripts/audit-repo.mjs --repo .
+```
 
 ## 2026-08-11 — Review-lane fixes: identity regeneration and a11y
 

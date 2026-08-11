@@ -21,5 +21,6 @@ See [`wiki/index.md`](wiki/index.md) for current cross-cutting alerts.
 
 | Topic | Page | What it answers |
 |---|---|---|
+| Wiki schema | [`wiki/_schema.md`](wiki/_schema.md) | Wiki schema, routing, and capture contract |
 | Current state | [`wiki/current-state.md`](wiki/current-state.md) | Current repository-owned topology and content boundary |
 | Durable ledger | [`wiki/ledger.md`](wiki/ledger.md) | Dated durable facts and their source anchors |
