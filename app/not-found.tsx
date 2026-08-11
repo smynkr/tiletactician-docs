@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Constellation } from '@/components/brand/constellation';
 import { OpenSearchButton } from '@/components/brand/open-search-button';
+import { FocusDeadEndHeading } from '@/components/focus-dead-end-heading';
 
 export default function NotFound() {
   return (
@@ -12,9 +13,11 @@ export default function NotFound() {
       <Constellation className="absolute inset-0 -z-10 h-full w-full" count={50} />
 
       <div className="ax-metric-label mb-4">tile not on the board</div>
-      <h1 className="font-display text-6xl font-semibold tracking-[-0.02em] text-fd-card-foreground sm:text-7xl">
-        404
-      </h1>
+      <FocusDeadEndHeading>
+        <h1 className="font-display text-6xl font-semibold tracking-[-0.02em] text-fd-card-foreground sm:text-7xl">
+          404
+        </h1>
+      </FocusDeadEndHeading>
       <p className="mt-4 max-w-md text-base leading-relaxed text-fd-muted-foreground">
         This page isn&apos;t on the board. The coordinates you requested
         don&apos;t match any tile in the current layout — check the URL, or
