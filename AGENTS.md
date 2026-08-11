@@ -10,6 +10,10 @@
 Precedence: live systems > dated wiki ledger > session checkpoint > wiki
 synthesis > Graphiti episodic context > scratch files. `docs/wiki/` is the
 canonical durable memory.
+Hindsight and Mem Palace are fully archived. Do not query them, write them, use them
+for orientation/resume, or accept them as gate satisfaction. Historical exports are
+inert evidence only.
+
 
 ## Content invariant
 

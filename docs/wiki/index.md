@@ -22,5 +22,6 @@ only `group_id=tiletactician-docs` and never override the wiki.
 
 | Page | What it answers |
 |---|---|
+| [[_schema]] | Wiki schema, routing, and capture contract |
 | [[current-state]] | Current repository-owned topology and content boundary |
 | [[ledger]] | Dated durable facts and their source anchors |

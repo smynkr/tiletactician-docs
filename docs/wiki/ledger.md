@@ -9,6 +9,25 @@ sources: [".codex/harness-memory.json", "README.md", "package.json", "next.confi
 
 # Durable ledger
 
+
+## 2026-08-11 — Harness-memory conformance (audit FAIL → PASS)
+
+- Added `docs/wiki/_schema.md` (schema + routing + capture contract; group_id
+  boundary, content-boundary section, memory gates, Hindsight/Mem Palace
+  fully-archived marker). The wiki previously had only index/current-state/
+  ledger and failed the harness-memory audit on the missing schema and the
+  missing archived-memory marker.
+- AGENTS.md: added the Hindsight and Mem Palace fully-archived marker to
+  Memory routing.
+- Regenerated `docs/AGENT_SOT.md` + `docs/wiki/_sources.json`
+  (`npm run memory:generate`); `npm run memory:check` passes and
+  `audit-repo.mjs` reports PASS.
+
+Re-establish with:
+
+```bash
+npm run memory:check
+```
 ## 2026-08-11 — Review-lane fixes: identity regeneration and a11y
 
 - content/docs regenerated: meta.json title is now TileTactician (llms.txt and
