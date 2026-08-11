@@ -10,7 +10,7 @@ import { useEffect, useRef, type ReactNode } from 'react';
  * remain the visible focus targets.
  */
 export function FocusDeadEndHeading({ children }: { children: ReactNode }) {
-  const ref = useRef<HTMLSpanElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const heading = ref.current?.querySelector('h1');
@@ -19,9 +19,11 @@ export function FocusDeadEndHeading({ children }: { children: ReactNode }) {
     heading.focus({ preventScroll: true });
   }, []);
 
+  // A <div> wrapper: <span> is phrasing content and cannot validly contain
+  // the h1 it wraps (review finding — invalid HTML around the 404 heading).
   return (
-    <span ref={ref} className="[&_h1]:outline-none">
+    <div ref={ref} className="contents [&_h1]:outline-none">
       {children}
-    </span>
+    </div>
   );
 }
