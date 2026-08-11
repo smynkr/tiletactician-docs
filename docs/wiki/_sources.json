@@ -47,7 +47,7 @@
     "README.md": "76ddcc4ff9dd0c52bb3a52b6ba4b69a80182ca1c438bcfe0e1e2c68db4e42d7d",
     "_migration/tools/lib/shared.mjs": "c9ceca1151f5034c630c563f14d50956ae0b95a3648725a66fc8541dda7bc9a9",
     "app/(home)/page.tsx": "47edcad85844425ff455b461b976493e724143ad6c85469a350247a21783e2ff",
-    "app/global.css": "2b47c13b875d0d36499c38ac4be723dc81d07051d091796ff75f4cf855172777",
+    "app/global.css": "63917e3fe1dc21242e260d04618dca7de4d586284e3a866a4adb8ca2638b1b9f",
     "components/brand/products.ts": "896874ad6f0b2b973956d7945a3d2b2fc7f8bb1f6e20b889a180aee26ad18ef3",
     "docs.json": "dcee28f68bfdc04d570806af6067db5500c294fc6fddf47c8a6927d70931a966",
     "next.config.mjs": "5379af2c644cd01779c654ac666e88eee3d6a6001f7d5b3e404dbda426eace75",

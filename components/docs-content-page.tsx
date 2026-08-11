@@ -17,6 +17,7 @@ import { createRelativeLink } from 'fumadocs-ui/mdx';
 import { Rss } from 'lucide-react';
 import { PRODUCTS } from '@/components/brand/products';
 import { ProductIdentityMark } from '@/components/brand/product-identity';
+import { Constellation } from '@/components/brand/constellation';
 
 type SourcePage = NonNullable<ReturnType<typeof source.getPage>>;
 
@@ -56,7 +57,10 @@ export function DocsContentPage({ page }: { page: SourcePage }) {
   const related = isChangelog ? null : getRelatedGuides(source.getPageTree(), page);
 
   return (
-    <DocsPage toc={toc} full={page.data.full}>
+    <DocsPage toc={toc} full={page.data.full} className={product ? 'ax-index-stage' : undefined}>
+      {product ? (
+        <Constellation count={44} linkDistance={130} className="ax-constellation ax-index-constellation" />
+      ) : null}
       {product ? <ProductIdentityMark product={product} /> : null}
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription className="mb-0">{page.data.description}</DocsDescription>
