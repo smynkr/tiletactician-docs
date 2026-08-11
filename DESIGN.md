@@ -96,13 +96,17 @@
 
 - **Reused from the shared template:** `ProductPreview`, `ProcessFlow`,
   `Mermaid` (fail-closed fallback), `RelatedGuides`, `DocsSearchDialog`,
-  `PageFeedback`, Fumadocs page actions, `fd-*` theme variables.
+  `PageFeedback`, `Intercom` (shared workspace `okr3tqrw`, parity with the
+  other docs sites), Fumadocs page actions, `fd-*` theme variables.
 - **Product-specific:** `components/brand/products.ts` carries the single
   identity source (name, `#F59E0B` accent, Grid2x2 icon, product-site
-  destination); `app/global.css` carries the amber theme.
-- **Removed vs the Axiom stack:** Axiom hub components, product grid,
-  Intercom (the old site had no chat widget), Axiom analytics keys. PostHog
-  plumbing stays but is inert without `NEXT_PUBLIC_POSTHOG_KEY`.
+  destination); `app/global.css` carries the amber theme; the Open Graph
+  card (`app/opengraph-image.tsx`) and the 404 page render the same identity
+  (void, amber signal, tile mark).
+- **Removed vs the Axiom stack:** Axiom hub components, product grid, and
+  the Axiom brand surfaces (cyan signal, constellation copy, Axiomancer
+  metadata). PostHog plumbing is shared with the other docs sites and is
+  live on the deployed site via `NEXT_PUBLIC_POSTHOG_KEY`.
 
 ## Accessibility
 
@@ -134,9 +138,10 @@
   the product repo/site identity where it appears; distinguish documentation
   links from product-site links.
 - **Microcopy rules:** one clear action label per card; secondary links use
-  concise nouns; avoid claims unsupported by the app (pricing is
-  announced-at-launch; performance figures come from the docs and the
-  product repo).
+  concise nouns; avoid claims unsupported by the app (pricing lives in the
+  app — Crossplay Pro subscription and Vision scan credits are documented as
+  in-app behavior, not as a promise; performance figures come from the docs
+  and the product repo).
 
 ## Implementation constraints
 

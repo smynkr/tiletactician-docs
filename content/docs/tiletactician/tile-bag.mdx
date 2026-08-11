@@ -4,8 +4,6 @@ description: Track remaining tiles in the bag, monitor what has been played, and
   calculate draw probabilities.
 ---
 
-Track remaining tiles in the bag, monitor what has been played, and calculate draw probabilities.
-
 ## Tile bag
 
 The tile bag tracker shows which tiles remain undrawn, based on the standard
@@ -57,5 +55,6 @@ tracker shows:
 
 ## Crossplay differences
 
-NYT Crossplay uses the same tile distribution as Scrabble. If a future Crossplay
-variant changes the distribution, update it in Settings → Tile Distribution.
+NYT Crossplay uses the same tile distribution as Scrabble — the standard
+100-tile bag. TileTactician always tracks against this distribution, so bag
+counts and probabilities are identical for both game formats.

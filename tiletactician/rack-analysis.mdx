@@ -4,8 +4,6 @@ description: "How TileTactician ranks plays, calculates scores, and handles spec
 ---
 
 
-How TileTactician ranks plays, calculates scores, and handles special tiles.
-
 ## How scoring works
 
 TileTactician calculates scores using standard Scrabble rules:
@@ -51,9 +49,9 @@ The solver is optimized for real-time analysis:
 
 | Board state | Typical time (Apple Silicon) |
 |---|---|
-| Empty board, 7 tiles | <  200 ms |
-| Mid-game board, 7 tiles | <  500 ms |
-| All-duplicate rack (e.g., 7×E) | <  50 ms |
+| Empty board, 7 tiles | < 200 ms |
+| Mid-game board, 7 tiles | < 500 ms |
+| All-duplicate rack (e.g., 7×E) | < 50 ms |
 
 Results stream incrementally — the best play appears before the full search
 completes.

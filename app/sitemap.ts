@@ -6,8 +6,9 @@ const BASE = 'https://docs.tiletactician.com';
 export default function sitemap(): MetadataRoute.Sitemap {
   const pages = source
     .getPages()
-    // / 308-redirects to /getting-started; a redirecting URL must not be
-    // submitted in the sitemap, and getting-started takes the top slot.
+    // `/` is an internal rewrite to `/tiletactician` (the landing); a URL
+    // that never appears in the address bar must not be submitted in the
+    // sitemap, and the landing takes its own top-level slot.
     .filter((page) => page.url !== '/')
     .map((page) => ({
       url: `${BASE}${page.url}`,

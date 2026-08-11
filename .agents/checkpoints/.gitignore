@@ -1,0 +1,3 @@
+# Keep the directory for local checkclear breadcrumbs without tracking their content.
+*.md
+!.gitignore

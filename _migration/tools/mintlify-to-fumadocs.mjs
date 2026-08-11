@@ -73,7 +73,7 @@ async function main() {
   });
 
   // 'root' carries the top-level pages; this standalone site has none
-  // (the MenuWright folder is the whole site), so the map stays empty.
+  // (the TileTactician folder is the whole site), so the map stays empty.
   const rootSourceFiles = {};
   const sourceFiles = args.collection === 'root'
     ? (args.rootPage ? [rootSourceFiles[args.rootPage]] : Object.values(rootSourceFiles))

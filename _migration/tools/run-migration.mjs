@@ -57,7 +57,7 @@ async function main() {
   const docsJson = JSON.parse(await fs.readFile(path.join(REPO_ROOT, 'docs.json'), 'utf8'));
   const rootMeta = {
     title: docsJson.name,
-    // The MenuWright folder is the site root; '/' rewrites to it.
+    // The TileTactician folder is the site root; '/' rewrites to it.
     pages: [...docsJson.navigation.products.map((entry) => entry.product.toLowerCase())],
   };
   await fs.writeFile(path.join(destination, 'meta.json'), `${JSON.stringify(rootMeta, null, 2)}\n`, 'utf8');

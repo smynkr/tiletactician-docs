@@ -29,7 +29,7 @@ export async function generateMetadata(props: PageProps<'/[...slug]'>): Promise<
     description: page.data.description,
     openGraph: {
       type: 'website',
-      siteName: 'Axiomancer Docs',
+      siteName: 'TileTactician Docs',
       title: page.data.title,
       description: page.data.description,
       images: getPageImage(page).url,

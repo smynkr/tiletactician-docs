@@ -64,7 +64,7 @@ export function PageFeedback() {
               <>
                 Thanks for the signal. If something is wrong or missing,{' '}
                 <a
-                  href="mailto:support@menuwright.com"
+                  href="mailto:support@tiletactician.com"
                   className="font-medium text-fd-primary underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring"
                 >
                   tell us what you needed

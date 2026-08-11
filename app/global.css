@@ -134,9 +134,9 @@ html > body[data-scroll-locked] {
 
 /* Heading self-anchors are NOT links. Fumadocs wraps each heading's text in an
    <a href="#slug"> so the copy-anchor control has a target, which means the
-   "links are the signal" rule above would paint every h1–h6 cyan + underlined —
+   "links are the signal" rule above would paint every h1–h6 amber + underlined —
    an affordance lie (a heading that looks clickable) that also inverts
-   hierarchy, making an h2 shout louder than the white serif h1.    Cyan stays reserved for real, navigational links; a heading's own anchor
+   hierarchy, making an h2 shout louder than the white serif h1.    Amber stays reserved for real, navigational links; a heading's own anchor
    inherits the heading's ink (white in the void, near-black on paper) with no
    underline. Specificity is the load-bearing detail: the heading names sit
    inside :where(), which contributes ZERO specificity, but the `a` is a bare
@@ -153,7 +153,7 @@ html > body[data-scroll-locked] {
   color: inherit;
 }
 
-/* Inline code — a quiet, neutral chip. Cyan is reserved for interaction,
+/* Inline code — a quiet, neutral chip. Amber is reserved for interaction,
    and inline code is not interactive. */
 .prose :where(code):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
   font-family: var(--font-mono);
@@ -183,7 +183,7 @@ html > body[data-scroll-locked] {
   color: var(--color-fd-muted-foreground);
 }
 
-/* Blockquote — the margin note. Neutral border, not cyan. */
+/* Blockquote — the margin note. Neutral border, not amber. */
 .prose :where(blockquote):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
   border-inline-start: 2px solid var(--color-fd-border);
   font-style: normal;
@@ -244,51 +244,7 @@ article h1:first-of-type {
  * Signature components
  * ------------------------------------------------------------------------- */
 
-/* Live badge — "this is alive" */
-.ax-live-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  border: 1px solid rgba(0, 212, 255, 0.25);
-  background: rgba(0, 212, 255, 0.06);
-  color: #00d4ff;
-  border-radius: 9999px;
-  padding: 0.3rem 0.85rem;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-family: var(--font-sans);
-}
-/* The pulsing signal dot — works standalone or inside a badge */
-.ax-live-dot {
-  display: inline-block;
-  background: #00d4ff;
-  box-shadow: 0 0 8px rgba(0, 212, 255, 0.9);
-  animation: ax-pulse 2s ease-in-out infinite;
-}
-.ax-live-badge .ax-live-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 9999px;
-}
-@keyframes ax-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.8); }
-}
-
 /* Metric block — the brand asserts a number */
-.ax-metric-value {
-  font-family: var(--font-sans);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1;
-  color: #ffffff;
-  font-variant-numeric: tabular-nums;
-}
-/* Light mode only — `:root` also matches `.dark`, so scope with :not(.dark)
-   or the dark theme gets the light ink color (near-black on near-black). */
-:root:not(.dark) .ax-metric-value { color: #161616; }
 .ax-metric-label {
   font-family: var(--font-sans);
   font-size: 0.72rem;
@@ -298,22 +254,12 @@ article h1:first-of-type {
   color: var(--color-fd-muted-foreground);
 }
 
-/* Section eyebrow */
-.ax-eyebrow {
-  font-family: var(--font-sans);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-fd-primary);
-}
-
 /* Glow — reserved for the single most important interaction */
 .ax-glow {
-  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3), 0 0 40px rgba(0, 212, 255, 0.1);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.3), 0 0 40px rgba(245, 158, 11, 0.1);
 }
 
-/* Constellation canvas sits behind the hero. A <canvas> is a replaced
+/* Constellation canvas sits behind dead-end surfaces. A <canvas> is a replaced
    element, so `inset: 0` alone does NOT stretch it — with width/height left
    auto it falls back to its intrinsic 300×150 and the star field renders in a
    small patch at the panel's top-left instead of filling it. Size it
@@ -326,34 +272,6 @@ article h1:first-of-type {
   pointer-events: none;
   overflow: hidden;
 }
-
-/* Telemetry feed rows slide in as they rotate */
-@keyframes ax-feed-in {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.ax-feed-row {
-  animation: ax-feed-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-/* Hero headline underline sweep */
-@keyframes ax-underline {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
-}
-
-/* Word-by-word headline reveal */
-@keyframes ax-word-in {
-  from { opacity: 0; transform: translateY(0.35em); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Product accent utilities */
-.ax-accent-overwatch { --ax-accent: #e5a836; }
-.ax-accent-locus { --ax-accent: #6366f1; }
-.ax-accent-codex { --ax-accent: #d4a574; }
-.ax-accent-layer { --ax-accent: #f472b6; }
-.ax-accent-routeshift { --ax-accent: #34d399; }
 
 /* Diagram figure frame */
 .ax-figure {
@@ -383,9 +301,5 @@ article h1:first-of-type {
 
   .ax-constellation {
     display: none;
-  }
-
-  .ax-feed-row {
-    opacity: 1 !important;
   }
 }

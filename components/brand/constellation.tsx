@@ -9,7 +9,7 @@ interface ConstellationProps {
   linkDistance?: number;
   /** Radius (px) within which stars gravitate toward the cursor. Default 180. */
   pullRadius?: number;
-  /** Star color. Defaults to the cyan signal. */
+  /** Star color as "r, g, b". Defaults to the amber signal. */
   color?: string;
   className?: string;
 }
@@ -23,9 +23,10 @@ interface Star {
 }
 
 /**
- * The Axiomancer constellation — the brand's signature motion. A field of
- * drifting stars that link to their nearest neighbours and gravitate toward
- * the cursor. Rendered on a <canvas> behind hero content.
+ * The TileTactician constellation — the brand's signature motion: a field of
+ * drifting points of light, like tiles catching the table light, that link to
+ * their nearest neighbours and gravitate toward the cursor. Rendered on a
+ * <canvas> behind dead-end surfaces (the 404).
  *
  * Honors `prefers-reduced-motion` by drawing a single static frame.
  */
@@ -33,7 +34,7 @@ export function Constellation({
   count = 90,
   linkDistance = 150,
   pullRadius = 180,
-  color = '0, 212, 255',
+  color = '245, 158, 11',
   className,
 }: ConstellationProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);

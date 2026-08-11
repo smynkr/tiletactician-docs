@@ -16,11 +16,11 @@ import {
   useSearch,
 } from 'fumadocs-ui/components/dialog/search';
 import type { DefaultSearchDialogProps } from 'fumadocs-ui/components/dialog/search-default';
-import { PRODUCTS as AXIOM_PRODUCTS } from './brand/products';
+import { PRODUCTS as SITE_PRODUCTS } from './brand/products';
 import { captureDocsSearch } from './posthog-provider';
 
 const PRODUCTS = new Set([
-  ...AXIOM_PRODUCTS.map((product) => product.match.replace(/^\//, '')),
+  ...SITE_PRODUCTS.map((product) => product.match.replace(/^\//, '')),
   'changelog',
 ]);
 
@@ -52,7 +52,7 @@ function SearchEmpty({ query, searching }: { query: string; searching: boolean }
       {searching && query ? null : (
         <>
           <div className="mt-4 flex max-w-md flex-wrap justify-center gap-2">
-            {AXIOM_PRODUCTS.map((product) => (
+            {SITE_PRODUCTS.map((product) => (
               <Link
                 key={product.name}
                 href={`${product.match}/getting-started`}
@@ -71,10 +71,10 @@ function SearchEmpty({ query, searching }: { query: string; searching: boolean }
           <p className="mt-5 text-xs leading-5 text-fd-muted-foreground">
             Still stuck? Email{' '}
             <a
-              href="mailto:support@menuwright.com"
+              href="mailto:support@tiletactician.com"
               className="font-medium text-fd-primary underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring"
             >
-              support@menuwright.com
+              support@tiletactician.com
             </a>
           </p>
         </>

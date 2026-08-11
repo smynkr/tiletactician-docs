@@ -46,7 +46,7 @@ test("fails deterministically when canonical sources collide on one route", () =
   assert.equal(result.routes.get("/tiletactician/guide"), path.join(root, "tiletactician", "guide.mdx"));
 });
 
-test("validates root fragments against the rewritten MenuWright index", () => {
+test("validates root fragments against the rewritten TileTactician index", () => {
   const root = fixture();
   fs.writeFileSync(path.join(root, "tiletactician", "index.mdx"), "# Guide\n\n## Welcome aboard\n\n[welcome](/#welcome-aboard) [missing](/#not-a-heading)\n");
   const result = check({ root });
