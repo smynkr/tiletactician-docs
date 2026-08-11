@@ -9,6 +9,21 @@ sources: [".codex/harness-memory.json", "README.md", "package.json", "next.confi
 
 # Durable ledger
 
+## 2026-08-11 — Review-lane fixes: identity regeneration and a11y
+
+- content/docs regenerated: meta.json title is now TileTactician (llms.txt and
+  search breadcrumbs were still "Axiomancer Labs"). Infolitico's generated
+  tree also carried unprefixed links the migration rewrites — now in sync.
+- FocusDeadEndHeading span -> div (valid HTML); 404 heading focus.
+- Billing copy: 50 monthly credits is a Crossplay Pro entitlement (tiletactician).
+
+Re-establish with:
+
+```bash
+npm run memory:check
+```
+
+
 ## 2026-08-11 — Brand-completion and truth polish pass
 
 Post-launch polish (one commit, deployed to main): removed every remaining
