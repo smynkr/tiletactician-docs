@@ -14,7 +14,7 @@ export default function NotFound() {
 
       <div className="ax-metric-label mb-4">tile not on the board</div>
       <FocusDeadEndHeading>
-        <h1 className="font-display text-6xl font-semibold tracking-[-0.02em] text-fd-card-foreground sm:text-7xl">
+        <h1 className="ax-404-numeral font-display text-6xl font-semibold tracking-[-0.02em] sm:text-7xl">
           404
         </h1>
       </FocusDeadEndHeading>
