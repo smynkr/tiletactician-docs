@@ -12,6 +12,9 @@
       "current-state",
       "ledger"
     ],
+    "app/(home)/page.tsx": [
+      "current-state"
+    ],
     "app/global.css": [
       "current-state",
       "ledger"
@@ -43,10 +46,11 @@
     ".codex/harness-memory.json": "51a1be5cd6f39ff3570855233b45e81b5c1abf392a5c0bc7847a096401969da8",
     "README.md": "76ddcc4ff9dd0c52bb3a52b6ba4b69a80182ca1c438bcfe0e1e2c68db4e42d7d",
     "_migration/tools/lib/shared.mjs": "c9ceca1151f5034c630c563f14d50956ae0b95a3648725a66fc8541dda7bc9a9",
+    "app/(home)/page.tsx": "47edcad85844425ff455b461b976493e724143ad6c85469a350247a21783e2ff",
     "app/global.css": "2b47c13b875d0d36499c38ac4be723dc81d07051d091796ff75f4cf855172777",
     "components/brand/products.ts": "896874ad6f0b2b973956d7945a3d2b2fc7f8bb1f6e20b889a180aee26ad18ef3",
     "docs.json": "dcee28f68bfdc04d570806af6067db5500c294fc6fddf47c8a6927d70931a966",
-    "next.config.mjs": "afa5e69d5d2392e5844c535a5590a69f8cbf62aa64526a9646c890cae4d0f379",
+    "next.config.mjs": "5379af2c644cd01779c654ac666e88eee3d6a6001f7d5b3e404dbda426eace75",
     "package.json": "ca4a69a478f94d761a83d5f61da970690294ed35eca44846ec741cb2457bf971",
     "public/logo.svg": "b8cc7a8106ef2fa193d1bde7e0bb61fe79dfbc6ba623a3b18c4f51e356d1938f",
     "tiletactician/index.mdx": "08f3465d23ed3f59b65707390949feedd98b61ce3f6f4ca956f0f0dad53656d4"

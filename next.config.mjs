@@ -26,7 +26,9 @@ const config = {
       // Clean standalone URLs: docs.tiletactician.com/<page> serves the
       // /tiletactician/<page> route. The canonical source keeps its product
       // prefix; the rewrite keeps the pretty URL in the address bar.
-      { source: '/', destination: '/tiletactician' },
+      // `/` itself is NOT rewritten — app/(home)/page.tsx renders the
+      // product index there (a rewrite-only `/` 404s on soft navigation,
+      // because the client router does not apply rewrites).
       { source: '/getting-started', destination: '/tiletactician/getting-started' },
       { source: '/board-entry', destination: '/tiletactician/board-entry' },
       { source: '/board-scanning', destination: '/tiletactician/board-scanning' },
