@@ -6,9 +6,8 @@ const BASE = 'https://docs.tiletactician.com';
 export default function sitemap(): MetadataRoute.Sitemap {
   const pages = source
     .getPages()
-    // `/` is an internal rewrite to `/tiletactician` (the landing); a URL
-    // that never appears in the address bar must not be submitted in the
-    // sitemap, and the landing takes its own top-level slot.
+    // `/` renders the product index (app/(home)/page.tsx) — a duplicate of
+    // /tiletactician, which takes the canonical sitemap slot.
     .filter((page) => page.url !== '/')
     .map((page) => ({
       url: `${BASE}${page.url}`,

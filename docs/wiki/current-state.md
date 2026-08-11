@@ -1,10 +1,10 @@
 ---
 title: Current state
 category: current-state
-updated: 2026-08-10
+updated: 2026-08-11
 summary: Current repository-owned topology and content boundary
 nav_order: 20
-sources: ["README.md", "package.json", "next.config.mjs", "docs.json", "_migration/tools/lib/shared.mjs", "tiletactician/index.mdx", "components/brand/products.ts", "app/global.css"]
+sources: ["README.md", "package.json", "next.config.mjs", "docs.json", "_migration/tools/lib/shared.mjs", "app/(home)/page.tsx", "tiletactician/index.mdx", "components/brand/products.ts", "app/global.css"]
 ---
 
 # Current state
@@ -20,8 +20,9 @@ void (`#0A0A0F`, matching the app's dark-first UI), the tile mark in
 `public/logo.svg` / `public/favicon.svg` / `app/icon.svg`, and no Axiom
 identity anywhere in the chrome — including the Open Graph card, per-page
 metadata, the 404, and the search/page-feedback support mailtos (audited
-2026-08-11). The product index doubles as the landing page; `next.config.mjs`
-rewrites `/` and the clean page URLs (`/getting-started`, `/board-entry`,
+2026-08-11). The product index doubles as the landing page; `app/(home)/page.tsx`
+renders it at `/` (a real page, so the logo's soft navigation works), while
+`next.config.mjs` rewrites the clean page URLs (`/getting-started`, `/board-entry`,
 `/board-scanning`, `/rack-analysis`, `/endgame`, `/tile-bag`,
 `/share-extension`, `/faq`, `/changelog`) onto the `tiletactician/*` canonical
 routes so the address bar stays product-prefix-free.
