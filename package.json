@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@icons-pack/react-simple-icons": "^13.11.1",
+    "@sentry/nextjs": "^10.70.0",
     "cnfast": "^0.0.8",
     "fumadocs-core": "16.12.0",
     "fumadocs-mdx": "15.2.0",
@@ -50,5 +51,5 @@
     }
   },
   "test:links": null,
-  "description": "TileTactician documentation \u2014 Scrabble and Crossplay board analysis: every legal play, ranked by score, in real time."
+  "description": "TileTactician documentation — Scrabble and Crossplay board analysis: every legal play, ranked by score, in real time."
 }
