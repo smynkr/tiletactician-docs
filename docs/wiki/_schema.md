@@ -29,6 +29,7 @@ record the page, heading, revision provenance, and re-verification command.
 Every Graphiti read and write uses exactly `group_id=tiletactician-docs`; it never
 overrides the wiki.
 
+
 Hindsight and Mem Palace are fully archived. Do not query them, write them, use them
 for orientation/resume, or accept them as gate satisfaction. Historical exports are
 inert evidence only.
