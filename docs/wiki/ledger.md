@@ -1,7 +1,7 @@
 ---
 title: Durable ledger
 category: current-state
-updated: 2026-08-10
+updated: 2026-08-11
 summary: Dated durable facts and their source anchors
 nav_order: 130
 sources: [".codex/harness-memory.json", "README.md", "package.json", "next.config.mjs", "docs.json", "_migration/tools/lib/shared.mjs", "components/brand/products.ts", "app/global.css", "public/logo.svg"]
@@ -27,6 +27,9 @@ Re-establish with:
 
 ```bash
 npm run memory:check
+```
+npm run memory:check
+node ~/.codex/skills/harness-memory/scripts/audit-repo.mjs --repo .
 ```
 ## 2026-08-11 — Review-lane fixes: identity regeneration and a11y
 
