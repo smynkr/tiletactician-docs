@@ -27,6 +27,8 @@ Re-establish with:
 
 ```bash
 npm run memory:check
+```
+npm run memory:check
 node ~/.codex/skills/harness-memory/scripts/audit-repo.mjs --repo .
 ```
 ## 2026-08-11 — Review-lane fixes: identity regeneration and a11y
