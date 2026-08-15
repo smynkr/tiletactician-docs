@@ -1,60 +1,78 @@
 ---
 title: Tile bag & tracking
-description: Track remaining tiles in the bag, monitor what has been played, and
-  calculate draw probabilities.
+description: Track remaining tiles in the unseen pool, monitor what has been
+  played, and estimate each letter's chance of appearing in the next seven
+  draws.
 ---
 
 ## Tile bag
 
-The tile bag tracker shows which tiles remain undrawn, based on the standard
-Scrabble tile distribution:
+The tile tracker starts from the standard 100-tile English Scrabble
+distribution and subtracts tiles that are already on the board or in your
+rack. The remainder is the **unseen pool**: it includes tiles still in the
+physical bag and tiles on the opponent's rack, which the app cannot see.
 
 | Letter | Count | Letter | Count | Letter | Count |
-| ------ | ----- | ------ | ----- | ------ | ----- |
-| A      | 9     | J      | 1     | S      | 4     |
-| B      | 2     | K      | 1     | T      | 6     |
-| C      | 2     | L      | 4     | U      | 4     |
-| D      | 4     | M      | 2     | V      | 2     |
-| E      | 12    | N      | 6     | W      | 2     |
-| F      | 2     | O      | 8     | X      | 1     |
-| G      | 3     | P      | 2     | Y      | 2     |
-| H      | 2     | Q      | 1     | Z      | 1     |
-| I      | 9     | R      | 6     | Blank  | 2     |
+| ------ | ----: | ------ | ----: | ------ | ----: |
+| A      |     9 | J      |     1 | S      |     4 |
+| B      |     2 | K      |     1 | T      |     6 |
+| C      |     2 | L      |     4 | U      |     4 |
+| D      |     4 | M      |     2 | V      |     2 |
+| E      |    12 | N      |     6 | W      |     2 |
+| F      |     2 | O      |     8 | X      |     1 |
+| G      |     3 | P      |     2 | Y      |     2 |
+| H      |     2 | Q      |     1 | Z      |     1 |
+| I      |     9 | R      |     6 | Blank  |     2 |
+
+The summary card shows the total number of tiles in the unseen pool. It also
+calls out remaining high-value tiles (`J`, `Q`, `X`, and `Z`) when any are still
+in that pool.
 
 ## How tracking works
 
-TileTactician tracks tiles across three pools:
+TileTactician tracks three pools:
 
-1. **On the board** — tiles placed during the game
+1. **On the board** — tiles placed during the game.
+2. **On your rack** — your current tiles.
+3. **Unseen pool** — all distribution tiles not accounted for on the board or
+   your rack, including the physical bag and tiles on the opponent's rack.
 
-2. **On your rack** — your current tiles
+As you update the board or rack, the per-letter count and total adjust
+automatically. Blank tiles are counted as blanks rather than as the letter they
+represent.
 
-3. **In the bag** — everything else (calculated by subtraction)
+## Next-seven-draw estimate
 
-As you update the board and rack, the bag count adjusts automatically. The
-tracker shows:
+Each remaining letter displays an **estimated per-letter chance** of appearing
+in the next seven draws (or in all remaining draws when fewer than seven tiles
+remain in the tracked pool). Because the tracker cannot see the opponent's rack,
+this is an estimate based on the unseen-pool count, not an exact probability for
+the physical bag. It is not a bingo probability and it does not claim that the
+seven drawn tiles form a word.
 
-- **Remaining count** per letter
+The display applies a without-replacement calculation to the current
+unseen-pool counts:
 
-- **Draw probability** — the chance of drawing a specific letter on the next
-  draw
+`P(estimated chance) = 1 - P(none in the next 7 draws)`
 
-- **Bingo probability** — the chance of drawing 7 tiles that form at least one
-  bingo-eligible combination
+A letter with no remaining copies shows 0%; a tracked pool containing only that
+letter would show 100%. The percentage is recalculated from the current board,
+rack, and unseen-pool count.
 
 ## Using tile tracking strategically
 
-- **Endgame** — when the bag is empty, you know exactly what your opponent
-  holds. See [Endgame analysis](/tiletactician/endgame).
-
-- **Exchange decisions** — if the bag is rich in vowels, exchanging consonants
-  is more likely to improve your rack.
-
-- **Defensive play** — if high-value tiles (Q, Z, X) are still in the bag,
-  avoid opening premium squares your opponent could exploit.
+- **Watch the endgame threshold.** When the unseen total is seven tiles or
+  fewer, [Endgame analysis](/tiletactician/endgame) can infer the opponent's
+  rack from the remaining distribution.
+- **Compare exchange candidates.** The estimates tell you how likely each
+  letter is to appear over a seven-draw window, rather than only on the very
+  next draw.
+- **Track high-value tiles.** The summary callout makes it easy to see whether
+  `J`, `Q`, `X`, or `Z` remains available.
 
 ## Crossplay differences
 
-NYT Crossplay uses the same tile distribution as Scrabble — the standard
-100-tile bag. TileTactician always tracks against this distribution, so bag
-counts and probabilities are identical for both game formats.
+The app uses the same standard 100-tile distribution for its Scrabble and
+Crossplay tracking. Switching board type changes the board layout, but the
+unseen-pool counts and per-letter estimates use this distribution in both
+formats.

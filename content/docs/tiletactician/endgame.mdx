@@ -1,71 +1,65 @@
 ---
 title: Endgame analysis
-description: When the bag is empty, TileTactician solves the endgame — exact
-  opponent tiles, optimal sequence, and win probability.
+description: When seven or fewer unseen tiles remain, estimate the opponent rack
+  heuristically and compare endgame moves by net score.
 ---
 
-## What is endgame mode?
+## When Endgame Mode appears
 
-When the tile bag is empty, both players' tiles are fully determined: your rack
-is visible, and your opponent's rack is everything not on the board, not on
-your rack, and not in the (empty) bag. TileTactician's endgame solver uses this
-perfect information to find the optimal play sequence.
+TileTactician shows Endgame Mode when the total number of
+unseen tiles—everything not on the board and not in your rack—is **7 or
+fewer**. This threshold does not prove that the physical bag is empty: the
+unseen tiles may still be in the bag or on the opponent's rack. The app
+explicitly assumes they are all on the opponent's rack because they fit there,
+so treat that rack as a heuristic estimate, not a certain inference.
 
-## Activating endgame
+If the bag is independently known to be empty, the remaining tiles are the
+opponent's rack with certainty. If more than seven unseen tiles remain, the
+app cannot make that rack estimate and the Endgame panel stays hidden.
 
-Endgame mode activates automatically when:
+## What the panel shows
 
-- The tile bag count reaches zero (tracked via [Tile bag](/tiletactician/tile-bag))
+When the threshold is reached, the manual editor renders **Endgame Mode** with:
 
-- You manually toggle it from the board toolbar (endgame icon)
+- **Your rack** — your current tiles, including blanks;
+- **Opp. rack** — the assumed opponent tiles for this heuristic, with blanks displayed as `?`;
+- **Endgame Analysis** — a button that runs the endgame solver; and
+- a progress state while the solver is working, including an option to cancel.
 
-## What the solver computes
+The panel does not start a solve merely because the threshold is reached. Tap
+**Endgame Analysis** to calculate the move list.
 
-The endgame panel shows:
+## Reading the results
 
-- **Opponent's rack** — the exact tiles your opponent holds (deduced from
-  perfect information)
+Results are ordered by the solver's `netScore` (`yourScore −
+opponentBestScore`). The panel lists up to 15 moves. Each row includes:
 
-- **Optimal sequence** — the play order that maximizes your final score margin,
-  assuming optimal play from both sides
+- the word, with blank assignments rendered in lowercase;
+- its starting coordinate and direction;
+- **net** — your score minus the opponent's best reply score; and
+- the detail values `yourScore − opponentBestScore`.
 
-- **Win/loss projection** — whether the current position is a win or loss under
-  perfect play, and the projected point margin
+The results header also reports the solver's elapsed time in milliseconds. A
+positive net score is styled as an advantage; a negative net score is styled as
+a disadvantage. If the solver finds no valid move for the current rack and
+board, the panel says so instead of showing an empty ranking.
 
-- **Key decisions** — critical junctures where the choice of play changes the
-  outcome
+Tap a move row to apply that endgame placement to the manual board. You can tap
+**Re-analyse** after changing the position.
 
-## Reading the endgame panel
+## How the rack estimate is derived
 
-| Field                | Meaning                                            |
-| -------------------- | -------------------------------------------------- |
-| **Your rack**        | Tiles you currently hold                           |
-| **Opponent rack**    | Deduced opponent tiles                             |
-| **Best play**        | The solver's recommended move                      |
-| **Projected margin** | Expected final score difference (+you / −opponent) |
-| **Depth**            | How many turns ahead the solver has searched       |
+The tile tracker starts with the standard 100-tile distribution and subtracts
+tiles seen on the board and in your rack. Once seven or fewer tiles remain in
+the unseen total, the implementation assumes all of them are the opponent's
+rack for the heuristic. If the total is zero, the estimated opponent rack is
+empty.
 
-## Performance
+This assumption is certain only when the bag is known to be empty. Otherwise,
+the remaining tiles could still be in the bag, even though they fit on a rack.
+This heuristic is separate from a full-game score projection: the panel reports
+candidate moves, their best replies, net scores, and elapsed solve time rather
+than a win-probability forecast.
 
-Endgame solving is computationally intensive — it searches the full game tree
-of remaining turns. Typical solve times:
-
-| Tiles remaining  | Time (Apple Silicon) |
-| ---------------- | -------------------- |
-| ≤ 4 tiles total  | \< 1 second          |
-| 5–8 tiles total  | 2–10 seconds         |
-| 9–14 tiles total | 10–60 seconds        |
-
-The solver runs incrementally and displays the best line found so far while
-searching deeper.
-
-## Limitations
-
-- Endgame mode assumes both players play optimally. A human opponent may not
-  follow the projected sequence.
-
-- The solver uses the embedded dictionary; if your game uses a different word
-  list, results may differ.
-
-- With more than 14 tiles remaining, the search space grows exponentially and
-  the solver may not reach full depth.
+For the probability that individual letters remain available before this
+threshold, see [Tile bag & tracking](/tiletactician/tile-bag).

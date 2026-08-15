@@ -1,100 +1,96 @@
 ---
 title: Rack analysis
-description: How TileTactician ranks plays, calculates scores, and handles special tiles.
+description: Understand TileTactician scoring, ranked placements, Coach
+  assistance levels, and post-scan feedback.
 ---
 
 ## How scoring works
 
-TileTactician calculates scores using standard Scrabble rules:
+TileTactician calculates each legal placement from the board, rack, and active
+board type:
 
-1. **Base tile values** — each letter carries its standard point value (A=1,
-   B=3, C=3, D=2, E=1, F=4, G=2, H=4, I=1, J=8, K=5, L=1, M=3, N=1, O=1,
-   P=3, Q=10, R=1, S=1, T=1, U=1, V=4, W=4, X=8, Y=4, Z=10).
+1. **Base tile values** — each letter contributes its standard point value.
+2. **Letter premiums** — double- and triple-letter squares multiply the tile
+   value before it is added.
+3. **Word premiums** — double- and triple-word squares multiply the word total.
+4. **Cross-words** — perpendicular words formed by the placement are scored and
+   added.
+5. **Bingo bonus** — using all seven rack tiles adds 50 points.
 
-2. **Letter premiums** — double-letter and triple-letter squares multiply the
-   tile value before summing.
-
-3. **Word premiums** — double-word and triple-word squares multiply the entire
-   word score. Multiple word premiums stack multiplicatively.
-
-4. **Cross-words** — any perpendicular words formed by the placement are scored
-   and added to the total.
-
-5. **Bingo bonus** — playing all seven rack tiles in one turn adds 50 bonus
-   points.
+A blank is a wildcard: it can represent a letter, but contributes zero tile
+points. The result displays the assigned blank letter and the score breakdown
+for the placement.
 
 ## Play ranking
 
-Results are sorted by total score, highest first. When two plays score
-identically, the solver breaks ties by:
+The results list starts with the highest-scoring placements. When scores tie,
+the solver prefers a play using fewer tiles, then uses alphabetical word order
+for deterministic output. Tap a result to preview its placement on the board;
+tap it again to open the detailed result view.
 
-- Fewer tiles used (preserves rack flexibility)
-
-- Alphabetical word order (deterministic output)
+You can change the results sort to **Score**, **Length**, or **A–Z**. The result
+list also exposes the placement's position, direction, cross-words, and bingo
+indicator when those details apply.
 
 ## Rack management
 
-The rack bar shows your current tiles. You can:
+The rack bar lets you:
 
-- **Add tiles** — tap the `+` button and select letters
+- add tiles with the `+` control;
+- tap a tile to remove it; and
+- long-press a tile to toggle it as a blank wildcard.
 
-- **Remove tiles** — tap a tile in the rack to return it
-
-- **Set blanks** — long-press a tile to toggle it as a blank wildcard
-
-## Performance
-
-The solver is optimized for real-time analysis:
-
-| Board state                    | Typical time (Apple Silicon) |
-| ------------------------------ | ---------------------------- |
-| Empty board, 7 tiles           | \< 200 ms                    |
-| Mid-game board, 7 tiles        | \< 500 ms                    |
-| All-duplicate rack (e.g., 7×E) | \< 50 ms                     |
-
-Results stream incrementally — the best play appears before the full search
-completes.
-
-## Dictionary
-
-TileTactician uses the official tournament word list. The dictionary is
-embedded in the app and does not require a network connection.
+Enter the rack before analyzing. The solver uses the rack together with the
+board and selected board type to generate legal placements.
 
 ## Coach mode
 
-The **Coach slider** adjusts how much assistance TileTactician provides during
-analysis. Slide from full analysis (every legal play shown) down to guided
-hints (only the top play, or just a nudge toward the best area of the board).
+The **Coach** slider has three assistance levels:
 
-| Level      | What you see                                            |
-| ---------- | ------------------------------------------------------- |
-| **Full**   | Every legal placement, ranked by score                  |
-| **Guided** | Top 3 plays with score and position                     |
-| **Hint**   | The best play's board region highlighted, no word shown |
-| **Off**    | No analysis — use for practice or tournament prep       |
+| Level      | What the results show                                             |
+| ---------- | ----------------------------------------------------------------- |
+| **Hint**   | Valid play locations are highlighted, but no letters are revealed |
+| **Coach**  | The top 10 placements are available, without scores               |
+| **Expert** | All solver placements are shown with full score information       |
 
-Coach mode is useful for learning: start with hints, check your instinct
-against the solver, then reveal the full analysis to see what you missed.
+Use **Hint** to choose a board area yourself, **Coach** to compare a short list
+of candidate words, or **Expert** to inspect the complete ranked output. The
+level changes what the results expose; it does not change the underlying board
+or rack.
 
 ## Blunder bar
 
-After you make a play (in Play mode or manually), the **Blunder Bar** shows how
-your choice compares to the solver's top pick:
+After a second scan of the same game, the results screen can compare the newly
+added tiles with the solver placements. The **Blunder Bar** reports the matched
+play's efficiency against the best available score, the played word and score,
+the best word and score, and any missed points.
 
-- **Green** — you played the optimal move (or within 2 points of it)
+Its labels are based on efficiency:
 
-- **Yellow** — a reasonable play, but 3–10 points below optimal
+| Efficiency | Label     |
+| ---------- | --------- |
+| 95–100%    | Excellent |
+| 80–94%     | Good      |
+| 60–79%     | OK        |
+| 40–59%     | Blunder   |
+| Below 40%  | Miss      |
 
-- **Red** — a blunder: more than 10 points left on the table
-
-The bar also shows the word you played, the optimal word, and the point
-difference. Tap it to expand the full result list and see where your play ranks.
-
-Use the Blunder Bar to identify patterns in your play — consistent reds on
-bingo opportunities, for example, suggest studying seven-letter word stems.
+When the best placement uses all seven tiles and the matched play is shorter,
+the bar also reports that a bingo was available. If no prior board or matching
+placement is available, the bar is hidden.
 
 ## Word definitions
 
-Tap any word in the results list to open the **Define** modal, which shows the
-word's definition, part of speech, and an example sentence. Useful for learning
-unfamiliar tournament words and verifying that an obscure play is legitimate.
+Tap the `?` control on a result to open the **Define** modal. It looks up and
+shows:
+
+- the word's definition;
+- its optional part of speech; and
+- its optional phonetic spelling.
+
+The modal does not show an example sentence. It can show a loading state, a
+missing definition, a timeout, or an unavailable response, and it caches
+successful lookups while the app is running.
+
+For a complete turn-by-turn computer game and its post-game summary, see
+[Manual play and game loop](/tiletactician/game-play).

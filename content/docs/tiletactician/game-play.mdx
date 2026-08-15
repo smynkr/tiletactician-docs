@@ -1,0 +1,141 @@
+---
+title: Manual play and game loop
+description: Play a full Crossplay game against the computer, review each turn,
+  and share a privacy-safe post-game recap.
+---
+
+TileTactician's **Play Computer** mode is a turn-by-turn Crossplay game. You
+place a play on the board, submit it for validation, and then wait while the
+computer takes its turn. The home screen lets you choose **Hard** or
+**Expert** for a new game. If an active game is already saved, the same button
+continues it.
+
+## Start a game
+
+1. From the home screen, tap **Play Computer**.
+2. Choose **Hard** or **Expert**. A new game starts with an empty 15×15
+   Crossplay board, a shuffled 100-tile bag, seven tiles for each player, and a
+   score of zero for both sides.
+3. You take the first turn. The header shows the current scores and highlights
+   whose turn it is.
+
+The active game is persisted locally. Returning to the home screen and tapping
+**Continue Game** reopens the saved game.
+
+## Build and submit a play
+
+When it is your turn:
+
+1. Tap a tile in your rack.
+2. Tap an empty board cell to place it. Placed-but-unsubmitted tiles are
+   pending; tap one again to remove it.
+3. Repeat until the play is complete, then tap **Play**.
+
+TileTactician validates the pending placement before changing the game. A
+valid play must:
+
+- put tiles in one straight row or column;
+- cover the center square on the first play;
+- connect to an existing tile after the first play;
+- contain a valid main word and any valid perpendicular words; and
+- contain no gap between the new tiles and the word they form.
+
+The app scores the main word and any cross-words, removes the used rack tiles,
+draws replacement tiles from the bag, and records the move. If validation
+fails, the board remains unchanged and the error explains what to fix. Use
+**Recall** to remove all pending tiles without submitting them.
+
+## Other turn actions
+
+The action bar also includes:
+
+- **Exchange** — enter exchange mode, select one or more rack tiles, and tap
+  **Confirm**. Exchanges are available while at least seven tiles remain in the
+  bag. Returned tiles go back into the bag, the bag is shuffled, and the same
+  number of replacement tiles is drawn.
+- **Pass** — skip the turn. Two consecutive passes end the game.
+- **Resign** — end the game immediately; the computer is recorded as the
+  winner.
+- **Bag** — open [Tile bag & tracking](/tiletactician/tile-bag) to inspect the
+  remaining distribution.
+
+While the computer is working, the game shows **Computer is thinking…** and
+human actions are disabled. The computer uses the solver's top placement. On
+Expert difficulty, when the play-mode bag is empty it can use the endgame
+solver to choose its move; otherwise it uses the regular ranked placements. If
+no placement is available, it exchanges its rack when at least seven tiles are
+in the bag, or passes when an exchange is not possible.
+
+## How a game ends
+
+A game finishes when either:
+
+- both players have passed consecutively; or
+- the bag is empty and one player's rack is empty.
+
+At completion, each player's unplayed rack value is subtracted from their
+score. When a player goes out with an empty rack, that player receives the
+opponent's unplayed rack value. The higher final score wins; equal scores are a
+draw.
+
+The game-over card shows the result and both final scores. Choose **New Game**
+to return to the home screen and start another game, **Home** to leave the
+mode, or **View Analysis** to review the completed game.
+
+## Game Summary
+
+**View Analysis** reconstructs the game's board snapshots and analyzes the
+human moves. The `GameSummary` screen contains:
+
+- **Brilliancy Estimate** — a 0–100 directional estimate based on reconstructed
+  racks. It is an estimate, not a tournament rating.
+- **Estimated points lost** — the total estimated difference from the best
+  known moves for the reconstructed racks.
+- **Moves analysed** — the number of human moves included in the analysis.
+- **Estimated Turning Points** — notable swings identified by the analysis, or
+  a clean-game message when none are found.
+- **Your Moves** — each move's number, word, score, estimated best word and
+  score, point delta, and blunder marker when applicable.
+
+A move with a zero delta is labeled **Best known for the reconstructed rack**.
+Because the analysis reconstructs racks from the recorded game, the summary
+uses directional and approximate language rather than claiming perfect
+information.
+
+## Blunder Bar
+
+The results screen includes a **Blunder Bar** when a prior board is available —
+for example, after scanning the same game again so the app can compare the
+before and after boards. It identifies the newly added tiles, matches them to
+a solver placement, and compares the played score with the best available
+placement.
+
+The bar shows the played word and score, an efficiency percentage, the best
+word and score, and missed points. Its labels are based on efficiency:
+
+| Efficiency | Label     |
+| ---------- | --------- |
+| 95–100%    | Excellent |
+| 80–94%     | Good      |
+| 60–79%     | OK        |
+| 40–59%     | Blunder   |
+| Below 40%  | Miss      |
+
+If the best placement is a seven-tile play and the matched play is shorter, the
+bar also calls out that a bingo was available. If it cannot identify a matching
+new placement, it stays hidden rather than guessing.
+
+## Share a game recap
+
+Tap **Share Summary** in `GameSummary` to create a short, aggregate-only recap.
+The versioned recap contains the result, normalized difficulty, rule profile,
+both scores, number of moves analyzed, directional brilliancy, and the highest-
+scoring sanitized human play. It is capped at 320 characters.
+
+The recap deliberately excludes board and rack data, timestamps, identifiers,
+account details, OCR data, provider data, and model data. TileTactician first
+tries the native share sheet. If that fails, it copies the recap to the
+clipboard; if both options fail, it reports that the recap is unavailable.
+
+For the board-analysis workflow that is separate from a full game, see
+[Rack analysis](/tiletactician/rack-analysis).
