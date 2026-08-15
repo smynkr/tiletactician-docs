@@ -37,12 +37,11 @@ concurrency:
 
 jobs:
   recap:
-    if: ${{ secrets.DOCS_AGENT_PAT != '' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.DOCS_AGENT_PAT }}
+          token: ${{ secrets.DOCS_AGENT_PAT || github.token }}
 
       - uses: actions/setup-node@v4
         with:
@@ -53,7 +52,23 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+      - name: Check DOCS_AGENT_PAT
+        env:
+          RECAP_PAT: ${{ secrets.DOCS_AGENT_PAT }}
+        run: |
+          if [ -n "$RECAP_PAT" ]; then
+            echo "RECAP_ENABLED=true" >> "$GITHUB_ENV"
+            echo "DOCS_AGENT_PAT present — recap enabled."
+          else
+            echo "DOCS_AGENT_PAT not set — skipping recap (no-op until the secret is added)."
+          fi
+
+      - name: Install dependencies
+        if: env.RECAP_ENABLED == 'true'
+        run: npm ci
+
       - name: Generate changelog entry
+        if: env.RECAP_ENABLED == 'true'
         env:
           GH_TOKEN: ${{ secrets.DOCS_AGENT_PAT }}
           RECAP_REPO: ${{ vars.RECAP_REPO }}
@@ -68,6 +83,7 @@ jobs:
           node pipeline/recap.mjs "${ARGS[@]}"
 
       - name: Commit and push if changed
+        if: env.RECAP_ENABLED == 'true'
         run: |
           if git diff --quiet && git diff --cached --quiet; then
             echo "No changelog changes — nothing to commit."
