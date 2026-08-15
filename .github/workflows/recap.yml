@@ -1,0 +1,78 @@
+# recap — generate a changelog entry from smynkr/Crossplay-Pro's REAL merged-PR record.
+#
+# Runs weekly (Sunday 03:00 UTC) and on demand. Collects merged PRs from the
+# app repository, filters noise, and prepends a dated entry to
+# <canonical>/changelog.mdx + migration mirror. Deterministic — no LLM, no fabrication risk.
+#
+# Requires: DOCS_AGENT_PAT secret with read access to the app repo and
+# write access to this docs repo.
+
+name: recap
+
+on:
+  schedule:
+    - cron: "0 3 * * 0"  # Sunday 03:00 UTC
+  workflow_dispatch:
+    inputs:
+      since:
+        description: "Window start YYYY-MM-DD (default: 7 days before until)"
+        required: false
+        type: string
+      until:
+        description: "Window end YYYY-MM-DD (default: yesterday)"
+        required: false
+        type: string
+      force:
+        description: "Regenerate even if an entry for this window exists"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: recap
+  cancel-in-progress: false
+
+jobs:
+  recap:
+    if: ${{ secrets.DOCS_AGENT_PAT != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.DOCS_AGENT_PAT }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Configure git identity
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Generate changelog entry
+        env:
+          GH_TOKEN: ${{ secrets.DOCS_AGENT_PAT }}
+          RECAP_REPO: ${{ vars.RECAP_REPO }}
+          INP_SINCE: ${{ inputs.since }}
+          INP_UNTIL: ${{ inputs.until }}
+          INP_FORCE: ${{ inputs.force }}
+        run: |
+          ARGS=()
+          if [ -n "$INP_SINCE" ]; then ARGS+=(--since "$INP_SINCE"); fi
+          if [ -n "$INP_UNTIL" ]; then ARGS+=(--until "$INP_UNTIL"); fi
+          if [ "$INP_FORCE" = "true" ]; then ARGS+=(--force); fi
+          node pipeline/recap.mjs "${ARGS[@]}"
+
+      - name: Commit and push if changed
+        run: |
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No changelog changes — nothing to commit."
+          else
+            git add -A
+            git commit -m "docs(changelog): weekly recap from ${RECAP_REPO}"
+            git push
+          fi
