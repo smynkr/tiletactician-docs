@@ -1,25 +1,27 @@
 ---
 title: "Endgame analysis"
-description: "When seven or fewer unseen tiles remain, infer the opponent rack and compare endgame moves by net score."
+description: "When seven or fewer unseen tiles remain, estimate the opponent rack heuristically and compare endgame moves by net score."
 ---
 
 ## When Endgame Mode appears
 
-TileTactician treats the bag as effectively empty when the total number of
+TileTactician shows Endgame Mode when the total number of
 unseen tiles—everything not on the board and not in your rack—is **7 or
-fewer**. At that point those remaining tiles fit on the opponent's rack, so the
-app can infer that rack from the standard distribution.
+fewer**. This threshold does not prove that the physical bag is empty: the
+unseen tiles may still be in the bag or on the opponent's rack. The app
+explicitly assumes they are all on the opponent's rack because they fit there,
+so treat that rack as a heuristic estimate, not a certain inference.
 
-This is a threshold heuristic, not a requirement that the counted total be
-exactly zero. If more than seven unseen tiles remain, the app cannot infer the
-opponent's rack with certainty and the Endgame panel stays hidden.
+If the bag is independently known to be empty, the remaining tiles are the
+opponent's rack with certainty. If more than seven unseen tiles remain, the
+app cannot make that rack estimate and the Endgame panel stays hidden.
 
 ## What the panel shows
 
 When the threshold is reached, the manual editor renders **Endgame Mode** with:
 
 - **Your rack** — your current tiles, including blanks;
-- **Opp. rack** — the inferred opponent tiles, with blanks displayed as `?`;
+- **Opp. rack** — the assumed opponent tiles for this heuristic, with blanks displayed as `?`;
 - **Endgame Analysis** — a button that runs the endgame solver; and
 - a progress state while the solver is working, including an option to cancel.
 
@@ -44,17 +46,19 @@ board, the panel says so instead of showing an empty ranking.
 Tap a move row to apply that endgame placement to the manual board. You can tap
 **Re-analyse** after changing the position.
 
-## Why the rack can be inferred
+## How the rack estimate is derived
 
 The tile tracker starts with the standard 100-tile distribution and subtracts
 tiles seen on the board and in your rack. Once seven or fewer tiles remain in
-the unseen total, the implementation treats all of them as the opponent's rack.
-If the total is zero, the inferred opponent rack is empty.
+the unseen total, the implementation assumes all of them are the opponent's
+rack for the heuristic. If the total is zero, the estimated opponent rack is
+empty.
 
-That inference is only available while the remaining count fits on a rack. It
-is separate from a full-game score projection: the panel reports candidate
-moves, their best replies, net scores, and elapsed solve time rather than a
-win-probability forecast.
+This assumption is certain only when the bag is known to be empty. Otherwise,
+the remaining tiles could still be in the bag, even though they fit on a rack.
+This heuristic is separate from a full-game score projection: the panel reports
+candidate moves, their best replies, net scores, and elapsed solve time rather
+than a win-probability forecast.
 
 For the probability that individual letters remain available before this
 threshold, see [Tile bag & tracking](/tiletactician/tile-bag).
