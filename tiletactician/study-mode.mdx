@@ -1,0 +1,77 @@
+---
+title: "Study mode and saved words"
+description: "Turn saved plays into a mastery deck, practice two- and three-letter words, and manage your personal word bank."
+---
+
+**Study** turns the embedded word list and your saved plays into short,
+repeatable flashcard sessions. Open **Word Study** from the app, then choose a
+category before starting a session.
+
+## Choose a study category
+
+The category screen offers:
+
+- **Your Word Bank** — the words you saved from analysis results;
+- **2-Letter Words** — every two-letter word in the loaded trie; and
+- **3-Letter Words** — every three-letter word in the loaded trie.
+
+The app loads its dictionary before it builds the two- and three-letter decks.
+The Word Bank option is disabled until at least one word is saved. Its progress
+line shows how many saved words are familiar and allows up to 10 cards per
+session. The two- and three-letter sessions allow up to 20 cards.
+
+## How a flashcard session works
+
+Each card shows the word as tiles, its tile value, and (for a Word Bank card)
+its saved context when available: `Crossplay` or `Scrabble`, the score, and the
+saved board position.
+
+Choose one answer for every card:
+
+- **Familiar** records a correct answer and advances to the next card.
+- **Keep Practicing** records an attempt without adding a correct answer.
+
+The app saves each answer to device storage as it is recorded. A word counts as
+mastered/familiar after two correct answers. Decks prioritize words with fewer
+correct answers, then fewer attempts; the Word Bank also uses save recency and
+alphabetical order as tie-breakers. If you end a session early, the answers
+already recorded remain saved on that device.
+
+At the end, the summary reports how many cards you marked familiar and how many
+words in the selected category currently meet the familiarity threshold. Choose
+**Study Again** to repeat the category or **Choose Category** to return to the
+selection screen.
+
+## Build and manage your Word Bank
+
+From any result row, use the bookmark/save control to add a word. The **My
+Words** screen lets you:
+
+- view saved words and their score/position metadata;
+- search the list when it contains more than five entries;
+- tap the definition control for a word lookup;
+- remove a word with the `×` control; and
+- open a personalized study session with **Practice Saved Words**.
+
+The study deck deduplicates saved entries by uppercase word and keeps the most
+recent saved record for that word. A word can retain its board type, score, and
+position as context while you practice it.
+
+The definition sheet displays the word's **definition**, optional **part of
+speech**, and optional **phonetic** spelling. It does not promise an example
+sentence or other fields. The lookup can show a loading state, a missing
+definition, a timeout, or an unavailable response.
+
+## Sync saved words
+
+The My Words screen loads the local word bank first. When you are signed in, it
+then pulls the account's cloud words and pushes unsynced local rows through the
+same account-scoped sync flow. The status banner reads **Syncing…** during the
+operation and **Synced across devices** when it finishes.
+
+Cloud merges compare save timestamps; a strictly newer cloud save replaces an
+older local row. Deletes are represented by tombstones, and a deletion wins an
+equal timestamp so a stale cloud row cannot resurrect a removed word. Anonymous
+and signed-in word rows remain separate account buckets.
+
+For board snapshots and saved game states, see [Boards library](/tiletactician/boards-library).

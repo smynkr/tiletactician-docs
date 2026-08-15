@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "TileTactician",
-  "description": "TileTactician documentation \u2014 Scrabble and Crossplay board analysis: every legal play, ranked by score, in real time.",
+  "description": "TileTactician documentation — Scrabble and Crossplay board analysis: every legal play, ranked by score, in real time.",
   "colors": {
     "primary": "#F59E0B",
     "light": "#FBBF24",
@@ -39,6 +39,7 @@
                   "tiletactician/board-entry",
                   "tiletactician/board-scanning",
                   "tiletactician/rack-analysis",
+                  "tiletactician/game-play",
                   "tiletactician/endgame",
                   "tiletactician/tile-bag"
                 ]
@@ -47,6 +48,9 @@
                 "group": "App",
                 "icon": "share-2",
                 "pages": [
+                  "tiletactician/boards-library",
+                  "tiletactician/study-mode",
+                  "tiletactician/settings-subscriptions",
                   "tiletactician/share-extension"
                 ]
               },
