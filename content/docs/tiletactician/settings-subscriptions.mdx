@@ -1,0 +1,104 @@
+---
+title: Settings, privacy, and subscriptions
+description: Choose a board type, review the NWL word list, sign in with Apple,
+  and manage scan credits and Crossplay Pro purchases.
+---
+
+Open **Settings** to choose the board rules, review the active word list, check
+AI and scan status, manage your account, and buy or restore Crossplay Pro
+products.
+
+## Board type and word list
+
+The board-type selector offers:
+
+- **Crossplay** — the NYT Crossplay custom premium-square layout; and
+- **Scrabble** — the standard North American Scrabble board, labeled TWL/NWL
+  in the app and described as compatible with WWF-style 15×15 layouts.
+
+Switching board type resets the board layout, so choose the format before
+entering or scanning a position.
+
+Settings reports **NWL (NASPA)** as the active list and displays **172,000+**
+words. The in-app description calls NWL (North American Word List) the official
+NASPA tournament list and says it is the same list used by NYT Crossplay.
+
+## AI privacy and server management
+
+TileTactician does not ask for Vision or enhanced-AI API keys on the device.
+Settings shows both services as **Server-managed**. The client sends
+authenticated requests through the app's AI proxy; the proxy keeps the Google
+Vision and OpenAI keys in server-side secrets.
+
+For board scanning, the OCR pipeline sends the image to the server proxy's
+Google Cloud Vision `DOCUMENT_TEXT_DETECTION` request. Depending on the scan
+mode and verification pass, the server-proxied pipeline can also use AI checks
+for ambiguous tiles or rack reads. The app's Settings privacy copy says board
+images are processed securely and **never stored**.
+
+AI features require an account session. If the client has no authenticated
+session, the proxy rejects the request instead of treating the public project
+key as user authentication.
+
+## Sign in with Apple
+
+Full board scanning requires an account. The sign-in screen offers **Sign in
+with Apple** as the v1 sign-in path and explains that an account lets the app
+save boards and manage a subscription across devices.
+
+To sign in:
+
+1. Open **Settings → Sign in with Apple** when signed out.
+2. Complete the Apple flow.
+3. Return to the previous screen after successful authentication.
+
+You can choose **Maybe later** and return without signing in. A cancelled Apple
+flow does not show an error; other failures are displayed on the sign-in
+screen. Signing out is available in Settings, but the confirmation warns that
+board scanning is unavailable until you sign in again.
+
+## Crossplay Pro subscription
+
+The Settings purchase cards advertise two subscription choices:
+
+| Option  | In-app offer    | Includes                                                        |
+| ------- | --------------- | --------------------------------------------------------------- |
+| Monthly | **$2.99/mo**    | Up to 50 board scans per month; cancel anytime                  |
+| Yearly  | **$19.99/year** | Up to 50 board scans per month; the card advertises 44% savings |
+
+Store products are loaded from Apple and may provide a localized price. A
+purchase requires an authenticated user so the receipt can be linked to the
+account. If Apple defers a purchase, Settings reports **Awaiting Approval**;
+the purchase listener completes it after approval and refreshes the plan and
+scan balance.
+
+An active member sees **Crossplay Pro** in the plan row. **Restore Purchases**
+re-syncs and verifies subscription transactions. Consumable scan packs are not
+restored or re-credited by that action.
+
+## Scan credits and packs
+
+Board scans use Vision credits; a subscription grants 50 monthly credits but
+does not bypass metering. The server is authoritative: it reserves, settles,
+or refunds one credit for a logical board-scan request. All Vision calls in one
+logical scan share that request's credit.
+
+Settings displays your current combined scan balance. If it is zero, board
+scanning is gated until you subscribe or buy a pack. Rack scans are separate
+and remain free with ads.
+
+For users without a subscription, the Settings pack cards advertise:
+
+| Pack   |  Credits | Fallback price shown when the store price is unavailable |
+| ------ | -------: | -------------------------------------------------------: |
+| Small  |  5 scans |                                                    $0.99 |
+| Medium | 15 scans |                                                    $2.99 |
+| Large  | 40 scans |                                                    $6.99 |
+
+Pack credits do not expire. After a successful pack purchase, Settings refreshes
+the balance and confirms how many scans were added. A pending pack purchase
+waits for Apple's approval before credits are added.
+
+See [Board scanning](/tiletactician/board-scanning) for capture and review
+steps, and [Boards library](/tiletactician/boards-library) for account-scoped
+saved-board sync.

@@ -1,46 +1,59 @@
 ---
 title: Board scanning
 description: Import a board from a photo or screenshot using TileTactician's
-  built-in scanner — no manual tile entry needed.
+  server-side Vision scanner, then review uncertain reads before analysis.
 ---
 
 ## How it works
 
 TileTactician can read a Scrabble or Crossplay board from a photo or
-screenshot. Tap **Scan Board** on the home screen, and the app uses on-device
-image recognition to identify tiles, premium squares, and grid alignment.
+screenshot. Tap **Scan Board** on the home screen, and the app uploads the
+image through its authenticated server proxy to Google Cloud Vision's
+`DOCUMENT_TEXT_DETECTION` service. The OCR pipeline uses the Vision result to
+identify tiles, premium-square labels, and grid geometry; additional server-
+proxied AI verification passes can check ambiguous tiles or rack reads.
 
-Each board scan consumes one Vision scan credit. Your account includes 50
-credits each month, and you can add more from Settings → Crossplay Pro; the
-app shows your remaining balance before scanning.
+This recognition is **not on-device**. Settings shows Vision AI and enhanced AI
+as **Server-managed**, and says board images are processed securely and never
+stored. Board scanning therefore requires a signed-in account.
+
+Each logical board scan uses one Vision scan credit. Crossplay Pro grants 50
+monthly credits; signed-out users cannot scan, and users without a balance can
+buy packs from **Settings**. Pack credits do not expire. The balance is checked
+before scanning and refreshed after the request settles.
 
 ## Scanning from the app
 
-1. On the home screen, tap **Scan Board**.
-
-2. Point your camera at a physical board, or choose a screenshot from your
+1. Sign in with Apple if the app asks for an account, and confirm that you have
+   a scan credit in **Settings**.
+2. On the home screen, tap **Scan Board**.
+3. Point your camera at a physical board, or choose a screenshot from your
    photo library.
+4. Follow the progress labels as the pipeline finds the board, reads tiles,
+   sharpens crops, fills gaps, and validates the result.
+5. Review and correct uncertain reads, then confirm the board to load it into
+   the editor.
 
-3. The scanner highlights detected tiles and prompts you to review any
-   uncertain reads.
-
-4. Correct any misreads, then confirm the board to load it into the editor.
+The client sends a shared scan request ID with the Vision operations in one
+logical scan, so rescue and verification calls are accounted for together. If a
+scan is cancelled or fails, the server-side credit flow can settle or refund the
+request according to its authoritative result.
 
 ## Scanning from the Share Extension
 
 On iOS, you can share a board screenshot from any app directly to
 TileTactician. See [Share Extension](/tiletactician/share-extension) for setup.
+The same authenticated, credit-gated OCR pipeline handles the shared image.
 
 ## Accuracy tips
 
-- **Flat, well-lit surface** — shadows and glare cause misreads
-
-- **Fill the frame** — the board should occupy most of the image
-
+- **Flat, well-lit surface** — shadows and glare cause misreads.
+- **Fill the frame** — the board should occupy most of the image.
 - **Straight angle** — avoid extreme perspective; the scanner corrects mild
-  skew but not heavy distortion
-
-- **Physical boards** — matte tiles scan better than glossy ones
+  skew but not heavy distortion.
+- **Physical boards** — matte tiles scan better than glossy ones.
+- **Screenshots** — crop tightly to the game board when possible, and avoid
+  overlays or keyboards covering cells.
 
 ## Common misreads
 
@@ -54,6 +67,6 @@ TileTactician. See [Share Extension](/tiletactician/share-extension) for setup.
 ## Scan reference overlay
 
 After a scan, the **Show Scan** control in the editor toolbar overlays the
-original scan image on top of the board grid, so you can verify the
-recognized tiles against the photo before analyzing. Toggle it off with
-**Hide Scan** to see the board cleanly.
+original scan image on top of the board grid, so you can verify recognized tiles
+against the photo before analyzing. Toggle it off with **Hide Scan** to see the
+board cleanly.

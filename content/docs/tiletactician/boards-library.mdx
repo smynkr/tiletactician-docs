@@ -1,0 +1,72 @@
+---
+title: Boards library
+description: Save board states and racks, search your library, restore
+  snapshots, and sync saved games across signed-in devices.
+---
+
+The **Boards library** keeps board states you want to revisit. From the manual
+board editor, tap **Save** to store the current board and rack, or tap
+**Library** to open saved games.
+
+## Save a board
+
+A save requires at least one tile on the board. TileTactician stores:
+
+- a name (the default is `Game` when no name is entered);
+- the 15×15 tile grid;
+- the current rack; and
+- the game type (`Crossplay` or `Scrabble`).
+
+When you tap **Save**, the editor checks whether the current tile layout looks
+like a continuation of an existing saved game of the same type. If it finds a
+match, choose **Update** to replace that saved game or **Save as new** to create
+a separate entry. Otherwise, enter an optional name and save a new board.
+
+## Browse and open saved boards
+
+Each library card shows a compact board preview, game-type badge, tile count,
+saved rack (when present), and relative last-updated time. Use the search field
+to filter by board name or rack.
+
+- Tap a card to load its tiles, rack, and game type into the manual editor.
+- Long-press a card for **Rename**, **History**, or **Delete**.
+- **Rename** changes the card name without changing its board or rack.
+- **Delete** permanently removes the saved board after confirmation.
+
+An empty library links back to the editor with the instruction to scan a board
+and tap **Save**.
+
+## Snapshot history
+
+Updating a board with new tiles automatically records the previous state as a
+snapshot before the current row is overwritten. The library keeps the 20 most
+recent snapshots for a game. A snapshot contains the previous tile grid, rack,
+and timestamp.
+
+To use history:
+
+1. Long-press the board card and choose **History**.
+2. Review the snapshot preview, tile count, rack, and relative time.
+3. Tap a snapshot and confirm **Restore**.
+
+Restoring replaces the current board tiles and rack with the selected snapshot.
+A restore is a rewind, so it does not create another snapshot.
+
+## Cloud sync
+
+Signed-in users get bidirectional board sync through the app's cloud board
+store. The library syncs when it receives focus; saving an authenticated board
+also pushes an update. Sync pulls remote rows first, then pushes local rows that
+are newer.
+
+When the same board was edited in more than one place, the `updated_at`
+timestamp determines the winner: a newer remote revision replaces an older
+local revision, while a newer local revision is pushed to the cloud. Deletions
+use a tombstone so a stale live row cannot silently resurrect a deleted board.
+
+Local data is account-scoped. Boards created in the anonymous/offline bucket are
+not uploaded merely because an account signs in later; save them again after
+sign-in if you want them associated with that account. A failed sync does not
+prevent local board work—the library continues to use its local SQLite copy.
+
+For saved words and their separate sync flow, see [Study mode](/tiletactician/study-mode).

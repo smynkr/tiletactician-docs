@@ -39,6 +39,10 @@ const config = {
       { source: '/share-extension', destination: '/tiletactician/share-extension' },
       { source: '/faq', destination: '/tiletactician/faq' },
       { source: '/changelog', destination: '/tiletactician/changelog' },
+      { source: '/game-play', destination: '/tiletactician/game-play' },
+      { source: '/boards-library', destination: '/tiletactician/boards-library' },
+      { source: '/study-mode', destination: '/tiletactician/study-mode' },
+      { source: '/settings-subscriptions', destination: '/tiletactician/settings-subscriptions' },
     ];
   },
 };
