@@ -20,15 +20,14 @@ honor your plan (scan credits, packs).
 services at launch:
 
 - **Sentry** — crash, error, and performance diagnostics. An optional mobile
-  replay is only enabled for specific native builds; it masks all text
-  inputs and images and never captures logs or network contents.
+  replay can be enabled for specific native builds.
 - **PostHog** — anonymous product-usage analytics (screen/feature usage).
-  Autocapture of screens is disabled. An optional session replay is only
-  enabled for specific native builds; it masks all text inputs and images and
-  never captures logs or network contents.
+  Autocapture of screens is disabled. Email addresses and token-like strings
+  are redacted from captured events before they are sent. An optional session
+  replay can be enabled for specific native builds; it masks all text inputs
+  and images and never captures logs or network contents.
 
 No account identifier, name, or email address is sent to either service.
-Email addresses and token-like strings are redacted from captured events.
 Telemetry is never used for advertising; there are no advertising SDKs and we
 do not sell data.
 
