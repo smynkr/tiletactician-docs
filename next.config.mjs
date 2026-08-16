@@ -43,6 +43,7 @@ const config = {
       { source: '/boards-library', destination: '/tiletactician/boards-library' },
       { source: '/study-mode', destination: '/tiletactician/study-mode' },
       { source: '/settings-subscriptions', destination: '/tiletactician/settings-subscriptions' },
+      { source: '/privacy', destination: '/tiletactician/privacy' },
     ];
   },
 };

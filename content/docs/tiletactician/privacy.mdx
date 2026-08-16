@@ -1,0 +1,46 @@
+---
+title: Privacy
+description: How TileTactician handles board images, subscriptions, and
+  diagnostics — no account identifiers, no advertising, no data sales.
+---
+
+## 1. Data we process
+
+**Board scans.** When you use board scanning, the board photo is sent to our
+server and processed by Google Vision (optical character recognition) and
+OpenAI (board reconstruction). Images are processed and not stored — no API
+keys ever ship on the device. Scan credits gate usage (your plan includes
+monthly credits; purchased credits never expire).
+
+**Subscriptions and sign-in.** Sign-in uses Apple. Billing, payment details,
+and subscription management are handled entirely by Apple (StoreKit); payment
+card details never touch our servers. We store only the entitlements needed to
+honor your plan (scan credits, packs).
+
+**Diagnostics and product analytics.** The app initializes two telemetry
+services at launch:
+
+- **Sentry** — crash, error, and performance diagnostics. An optional mobile
+  replay is only enabled for specific native builds; it masks all text
+  inputs and images and never captures logs or network contents.
+- **PostHog** — anonymous product-usage analytics (screen/feature usage).
+  Autocapture of screens is disabled. An optional session replay is only
+  enabled for specific native builds; it masks all text inputs and images and
+  never captures logs or network contents.
+
+No account identifier, name, or email address is sent to either service.
+Email addresses and token-like strings are redacted from captured events.
+Telemetry is never used for advertising; there are no advertising SDKs and we
+do not sell data.
+
+## 2. What we don't do
+
+- No advertising SDKs, no cross-app tracking, no data sales.
+- No persistent storage of board images.
+
+## 3. Data retention and your choices
+
+Diagnostics and analytics are retained per Sentry's and PostHog's standard
+retention policies. To request deletion of your account data (Apple
+sign-in entitlements and subscription records), email
+[support@tiletactician.com](mailto:support@tiletactician.com).
