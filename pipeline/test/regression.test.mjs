@@ -247,6 +247,11 @@ function normalizedProviderBlock(source) {
 }
 
 function normalizedWorkflowProviderEnv(template) {
+  const stepStart = template.indexOf("      - name: Run docs-agent with Cloudflare GLM 5.3 Flash");
+  assert.notEqual(stepStart, -1, "workflow must contain the migrated docs-agent step");
+  const runStart = template.indexOf("\n        run:", stepStart);
+  assert.notEqual(runStart, -1, "migrated docs-agent step must contain a run block");
+  const step = template.slice(stepStart, runStart);
   const names = [
     "DOCS_AGENT_SOURCE_TOKEN",
     "GH_TOKEN",
@@ -259,7 +264,7 @@ function normalizedWorkflowProviderEnv(template) {
   ];
   return Object.fromEntries(
     names.map((name) => {
-      const match = template.match(new RegExp(`^\\s+${name}:\\s*(.+)$`, "m"));
+      const match = step.match(new RegExp(`^\\s+${name}:\\s*(.+)$`, "m"));
       return [name, match?.[1]?.trim() ?? null];
     }),
   );
