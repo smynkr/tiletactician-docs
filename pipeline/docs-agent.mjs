@@ -43,7 +43,8 @@ import { fileURLToPath } from "node:url";
 // ---------------------------------------------------------------------------
 
 const PRODUCTS = ["layer", "overwatch", "locus", "routeshift", "codex", "invest"];
-
+const CLOUDFLARE_GLM_53_MODEL = "@cf/zai-org/glm-5.3-flash";
+const VALID_GLM_REASONING_EFFORTS = new Set(["low", "medium", "high"]);
 const DEFAULT_EXCLUDE_GLOBS = [
   "**/package-lock.json",
   "**/pnpm-lock.yaml",
@@ -92,18 +93,26 @@ const BACKENDS = {
       process.env.DOCS_AGENT_GEMINI_ARGS.split(" ").includes("-"),
   },
   // Direct HTTP API backend — no CLI binary needed, just fetch().
-  // Works with any OpenAI-compatible endpoint (Neural Watt GLM, vLLM, etc.).
-  // Env: DOCS_AGENT_GLM_API_BASE (e.g. https://api.neuralwatt.com/v1),
-  //      DOCS_AGENT_GLM_MODEL (e.g. glm-5.2), GLM_API_KEY (Bearer token),
+  // The shared GLM route uses Cloudflare Workers AI's OpenAI-compatible API.
+  // Env: CLOUDFLARE_ACCOUNT_ID (required for Cloudflare; 32 lowercase hexadecimal characters),
+  //      DOCS_AGENT_GLM_API_BASE (Cloudflare exact base or generic OpenAI-compatible endpoint),
+  //      DOCS_AGENT_GLM_MODEL (default @cf/zai-org/glm-5.3-flash),
+  //      DOCS_AGENT_GLM_REASONING_EFFORT (Cloudflare GLM-5.3-Flash only; low | medium | high),
+  //      GLM_API_KEY (Bearer token),
   //      DOCS_AGENT_GLM_MAX_TOKENS (default 49152 — reasoning models spend
   //      their completion budget on thinking BEFORE producing content; 16384
   //      was observed burning out mid-thought with 0 content chars).
   glm: {
     type: "api",
     apiBase: (process.env.DOCS_AGENT_GLM_API_BASE || "").replace(/\/+$/, ""),
-    model: process.env.DOCS_AGENT_GLM_MODEL || "glm-5.2",
+    apiBaseEnv: "DOCS_AGENT_GLM_API_BASE",
+    model: process.env.DOCS_AGENT_GLM_MODEL || CLOUDFLARE_GLM_53_MODEL,
+    reasoningEffort: process.env.DOCS_AGENT_GLM_REASONING_EFFORT || "high",
+    reasoningEffortEnv: "DOCS_AGENT_GLM_REASONING_EFFORT",
     apiKey: process.env.GLM_API_KEY || "",
+    apiKeyEnv: "GLM_API_KEY",
     maxTokens: Number(process.env.DOCS_AGENT_GLM_MAX_TOKENS || 49152),
+    maxTokensEnv: "DOCS_AGENT_GLM_MAX_TOKENS",
   },
 };
 
@@ -111,6 +120,8 @@ const BACKENDS = {
 // able to finish inside the window; the two knobs move together.
 const DEFAULT_TIMEOUT_MS = Number(process.env.DOCS_AGENT_TIMEOUT_MS || 20 * 60 * 1000);
 const MAX_DOCS_PAGES = Number(process.env.DOCS_AGENT_MAX_PAGES || 5);
+const DEFAULT_GLM_RETRY_DELAY_MS = 250;
+const MAX_GLM_RETRY_DELAY_MS = 5000;
 // Do not consume the separator before ===END===. When file content ends with
 // a newline, that newline is part of the file and must survive the parse. For
 // files without a final newline, the END marker may follow the final byte
@@ -202,12 +213,14 @@ Optional:
 
 Env:
   DOCS_AGENT_BACKEND, DOCS_AGENT_DOCS_REPO, DOCS_AGENT_DOCS_PATH,
+  DOCS_AGENT_SOURCE_TOKEN (source PR reads), GH_TOKEN (destination docs-repo operations),
   DOCS_AGENT_CLAUDE_CMD / _CODEX_CMD / _GEMINI_CMD (override the CLI binary),
   DOCS_AGENT_CLAUDE_ARGS / _CODEX_ARGS / _GEMINI_ARGS (override invocation flags),
-  DOCS_AGENT_TIMEOUT_MS, DOCS_AGENT_MAX_PAGES.
-  Auth for whichever backend you pick is NOT this script's concern — it assumes
-  the CLI on PATH is already authenticated (subscription OAuth locally, or a
-  metered API key in hosted CI). See README.md.
+  CLOUDFLARE_ACCOUNT_ID, DOCS_AGENT_GLM_API_BASE / _MODEL / _MAX_TOKENS /
+  _REASONING_EFFORT, GLM_API_KEY, DOCS_AGENT_TIMEOUT_MS, DOCS_AGENT_MAX_PAGES.
+Auth for whichever backend you pick is NOT this script's concern — it assumes
+the CLI on PATH is already authenticated (subscription OAuth locally, or a
+metered API key in hosted CI). See README.md.
 `);
 }
 
@@ -268,6 +281,13 @@ function run(cmd, args, opts = {}) {
 function runAllowFail(cmd, args, opts = {}) {
   return spawnSync(cmd, args, { encoding: "utf8", ...opts });
 }
+// Source PR reads and destination docs-repo operations use different
+// credentials. The hosted template supplies the source token separately;
+// retain GH_TOKEN as the local/backward-compatible source fallback.
+function sourceGhEnv() {
+  const sourceToken = process.env.DOCS_AGENT_SOURCE_TOKEN;
+  return sourceToken ? { ...process.env, GH_TOKEN: sourceToken } : process.env;
+}
 
 // ---------------------------------------------------------------------------
 // Step 1: collect + filter the diff
@@ -275,12 +295,13 @@ function runAllowFail(cmd, args, opts = {}) {
 
 function collectRawDiff(opts) {
   if (opts.pr != null) {
+    const sourceEnv = sourceGhEnv();
     log(`fetching PR #${opts.pr} from ${opts.repo} via gh...`);
     const meta = run("gh", [
       "pr", "view", String(opts.pr),
       "--repo", opts.repo,
       "--json", "title,body,url,mergedAt,state,files,number",
-    ]);
+    ], { env: sourceEnv });
     const prMeta = JSON.parse(meta.stdout);
     if (!prMeta.mergedAt && !opts.force) {
       fail(
@@ -290,7 +311,7 @@ function collectRawDiff(opts) {
     }
     // maxBuffer: spawnSync caps stdout at 1MB by default, and this endpoint is
     // reached precisely for large PRs — let it deliver the full diff.
-    const diff = runAllowFail("gh", ["pr", "diff", String(opts.pr), "--repo", opts.repo], { maxBuffer: 64 * 1024 * 1024 });
+    const diff = runAllowFail("gh", ["pr", "diff", String(opts.pr), "--repo", opts.repo], { maxBuffer: 64 * 1024 * 1024, env: sourceEnv });
     if (diff.status === 0) return { rawDiff: diff.stdout, prMeta, oversizedPaths: [] };
     // GitHub refuses to serve diffs over ~20k lines (HTTP 406 "too_large").
     // That killed whole runs on large PRs; fall back to the per-file patches
@@ -298,7 +319,7 @@ function collectRawDiff(opts) {
     // simply omits `patch` for files too large even for that).
     if (/too_large|406/i.test(diff.stderr || "")) {
       log(`gh pr diff refused the full diff (too large); falling back to per-file API patches...`);
-      const { rawDiff, oversizedPaths } = collectDiffFromApi(opts.repo, opts.pr);
+      const { rawDiff, oversizedPaths } = collectDiffFromApi(opts.repo, opts.pr, sourceEnv);
       return { rawDiff, prMeta, oversizedPaths };
     }
     fail(`\`gh pr diff ${opts.pr} --repo ${opts.repo}\` exited ${diff.status}\n--- stderr ---\n${diff.stderr}`);
@@ -316,7 +337,7 @@ function collectRawDiff(opts) {
 }
 
 /** Rebuild a unified diff from the pulls/N/files API (per-file `patch` fields). */
-function collectDiffFromApi(repo, pr) {
+function collectDiffFromApi(repo, pr, sourceEnv) {
   // Fetch page by page and parse each response on its own. Textually merging
   // paginated arrays (a `][` → `,` replace) would corrupt patch content that
   // itself contains `][` — nested array indexing is common in product code.
@@ -329,7 +350,7 @@ function collectDiffFromApi(repo, pr) {
     const res = run(
       "gh",
       ["api", `repos/${repo}/pulls/${pr}/files?per_page=${PAGE_SIZE}&page=${page}`],
-      { maxBuffer: 64 * 1024 * 1024 },
+      { maxBuffer: 64 * 1024 * 1024, env: sourceEnv },
     );
     let pageFiles;
     try {
@@ -624,13 +645,55 @@ export function parseSSEPayload(text) {
     }
     const choice = evt?.choices?.[0];
     if (choice?.delta?.content) content += choice.delta.content;
-    // Reasoning arrives as `reasoning` (Neural Watt/GLM) or
+    // Reasoning arrives as `reasoning` (Cloudflare GLM) or
     // `reasoning_content` (Zhipu/DeepSeek-style OpenAI-compatible APIs).
     const reasoning = choice?.delta?.reasoning ?? choice?.delta?.reasoning_content;
     if (reasoning) reasoningChars += String(reasoning).length;
     if (choice?.finish_reason) finishReason = choice.finish_reason;
   }
   return { content, reasoningChars, finishReason, sawDone };
+}
+export function retryAfterDelayMs(headers, nowMs = Date.now()) {
+  const retryAfter = headers?.get("retry-after")?.trim();
+  if (!retryAfter) return DEFAULT_GLM_RETRY_DELAY_MS;
+  const seconds = Number(retryAfter);
+  if (Number.isFinite(seconds) && seconds >= 0) {
+    return Math.min(seconds * 1000, MAX_GLM_RETRY_DELAY_MS);
+  }
+  const retryAt = Date.parse(retryAfter);
+  if (!Number.isNaN(retryAt)) {
+    return Math.min(Math.max(retryAt - nowMs, 0), MAX_GLM_RETRY_DELAY_MS);
+  }
+  return DEFAULT_GLM_RETRY_DELAY_MS;
+}
+
+function isCloudflareGlm53Mode(backend, cloudflareMode) {
+  return Boolean(cloudflareMode && backend.model === CLOUDFLARE_GLM_53_MODEL);
+}
+
+export function validateGlmReasoningEffort(backend, cloudflareMode, configuredReasoningEffort) {
+  if (!isCloudflareGlm53Mode(backend, cloudflareMode)) return null;
+  if (
+    !VALID_GLM_REASONING_EFFORTS.has(backend.reasoningEffort) ||
+    (configuredReasoningEffort !== undefined && !VALID_GLM_REASONING_EFFORTS.has(configuredReasoningEffort))
+  ) {
+    return `${backend.reasoningEffortEnv} must be low, medium, or high`;
+  }
+  return null;
+}
+
+// Build the OpenAI-compatible request body. Generic legacy GLM endpoints keep
+// their historical wire format; only Cloudflare's exact GLM-5.3-Flash mode
+// adds its reasoning contract.
+export function buildApiRequestBody(backend, prompt, cloudflareMode) {
+  return {
+    model: backend.model,
+    messages: [{ role: "user", content: prompt }],
+    temperature: 0.2,
+    max_tokens: backend.maxTokens,
+    ...(isCloudflareGlm53Mode(backend, cloudflareMode) ? { reasoning_effort: backend.reasoningEffort } : {}),
+    stream: true,
+  };
 }
 
 function runBackend(backendName, prompt, timeoutMs) {
@@ -639,85 +702,150 @@ function runBackend(backendName, prompt, timeoutMs) {
 
   // --- Direct HTTP API backend (no CLI binary) ---
   if (backend.type === "api") {
-    if (!backend.apiBase) fail(`backend "${backendName}" requires DOCS_AGENT_GLM_API_BASE (e.g. https://api.neuralwatt.com/v1)`);
-    if (!backend.apiKey) fail(`backend "${backendName}" requires GLM_API_KEY env var (metered API key)`);
+    if (!backend.apiBase) {
+      if (backendName === "glm") {
+        fail(`backend "${backendName}" requires ${backend.apiBaseEnv} (e.g. https://api.cloudflare.com/client/v4/accounts/<account-id>/ai/v1)`);
+      }
+      fail(`backend "${backendName}" requires ${backend.apiBaseEnv} env var`);
+    }
+    if (!backend.apiKey) {
+      fail(`backend "${backendName}" requires ${backend.apiKeyEnv} env var (metered API key)`);
+    }
+    let cloudflareMode = false;
+    if (backendName === "glm") {
+      const accountId = process.env.CLOUDFLARE_ACCOUNT_ID || "";
+      let apiBaseHostname = "";
+      try {
+        apiBaseHostname = new URL(backend.apiBase).hostname;
+      } catch {
+        // A malformed generic URL will fail at fetch; Cloudflare mode below
+        // still fails closed when an account ID was supplied.
+      }
+      cloudflareMode = accountId !== "" || apiBaseHostname === "api.cloudflare.com";
+      if (cloudflareMode) {
+        if (!/^[0-9a-f]{32}$/.test(accountId)) {
+          fail("CLOUDFLARE_ACCOUNT_ID must be 32 lowercase hexadecimal characters");
+        }
+        const expectedApiBase = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/v1`;
+        if (backend.apiBase !== expectedApiBase) {
+          fail("DOCS_AGENT_GLM_API_BASE must be exactly the Cloudflare account endpoint");
+        }
+      }
+      const reasoningError = validateGlmReasoningEffort(
+        backend,
+        cloudflareMode,
+        process.env[backend.reasoningEffortEnv],
+      );
+      if (reasoningError) fail(reasoningError);
+    }
     log(`invoking API backend "${backendName}" (${backend.apiBase}, model=${backend.model}, max_tokens=${backend.maxTokens}, streaming), timeout=${timeoutMs}ms...`);
     return (async () => {
       try {
         // stream:true is load-bearing for this aggregator: non-streaming
         // requests at review/pipeline prompt sizes were observed returning
         // 524 gateway timeouts where the identical streaming request
-        // completed. Reasoning models (GLM 5.2, etc.) stream chain-of-thought
+        // completed. Reasoning models (GLM 5.3 Flash, etc.) stream chain-of-thought
         // in delta.reasoning and the actual answer in delta.content; the
         // completion budget must cover BOTH, hence the large max_tokens.
-        const res = await fetch(`${backend.apiBase}/chat/completions`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${backend.apiKey}`,
-          },
-          body: JSON.stringify({
-            model: backend.model,
-            messages: [{ role: "user", content: prompt }],
-            temperature: 0.2,
-            max_tokens: backend.maxTokens,
-            stream: true,
-          }),
-          signal: AbortSignal.timeout(timeoutMs),
+        // A rate limit can be transient, but a second metered request is only
+        // justified for that exact first-response case. Honor its bounded
+        // Retry-After delay before that one retry. Authentication and all
+        // other provider failures must remain single-attempt and fail closed.
+        const requestAttempts = backendName === "glm" ? 2 : 1;
+        const deadline = Date.now() + timeoutMs;
+        const timeoutResult = () => ({
+          code: -1,
+          signal: null,
+          stdout: "",
+          stderr: `API backend "${backendName}" exhausted its ${timeoutMs}ms timeout budget`,
+          timedOut: true,
         });
-        if (!res.ok) {
-          const body = await res.text().catch(() => "(unreadable)");
-          return { code: res.status, signal: null, stdout: "", stderr: `HTTP ${res.status}: ${body.slice(-4000)}`, timedOut: false };
-        }
-        if (!res.body) {
-          return { code: -1, signal: null, stdout: "", stderr: "HTTP 200 but an empty response body — the endpoint may not support streaming.", timedOut: false };
-        }
+        for (let attempt = 0; attempt < requestAttempts; attempt += 1) {
+          const remainingTimeoutMs = deadline - Date.now();
+          if (remainingTimeoutMs <= 0) return timeoutResult();
+          const res = await fetch(`${backend.apiBase}/chat/completions`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${backend.apiKey}`,
+            },
+            body: JSON.stringify(buildApiRequestBody(backend, prompt, cloudflareMode)),
+            signal: AbortSignal.timeout(Math.max(1, Math.ceil(remainingTimeoutMs))),
+          });
+          if (!res.ok) {
+            const body = await res.text().catch(() => "(unreadable)");
+            if (backendName === "glm" && res.status === 429 && attempt === 0) {
+              const retryDelayMs = retryAfterDelayMs(res.headers);
+              const remainingBudgetMs = deadline - Date.now();
+              if (remainingBudgetMs <= 0) return timeoutResult();
+              const waitMs = Math.min(retryDelayMs, remainingBudgetMs);
+              log(`API backend "${backendName}" returned HTTP 429; waiting ${waitMs}ms before retrying once...`);
+              await new Promise((resolve) => setTimeout(resolve, waitMs));
+              continue;
+            }
+            return { code: res.status, signal: null, stdout: "", stderr: `HTTP ${res.status}: ${body.slice(-4000)}`, timedOut: false };
+          }
+          if (!res.body) {
+            return { code: -1, signal: null, stdout: "", stderr: "HTTP 200 but an empty response body — the endpoint may not support streaming.", timedOut: false };
+          }
 
-        // Accumulate the whole stream, then parse. Review-sized streams are a
-        // few MB at most, and full-text parsing cannot drop a final event that
-        // arrives without a trailing newline.
-        let sseText = "";
-        const decoder = new TextDecoder();
-        const reader = res.body.getReader();
-        for (;;) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          sseText += decoder.decode(value, { stream: true });
-        }
-        sseText += decoder.decode(); // flush a multi-byte char split at stream end
+          // Accumulate the whole stream, then parse. Review-sized streams are a
+          // few MB at most, and full-text parsing cannot drop a final event that
+          // arrives without a trailing newline.
+          let sseText = "";
+          const decoder = new TextDecoder();
+          const reader = res.body.getReader();
+          for (;;) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            sseText += decoder.decode(value, { stream: true });
+          }
+          sseText += decoder.decode(); // flush a multi-byte char split at stream end
 
-        const { content, reasoningChars, finishReason, sawDone } = parseSSEPayload(sseText);
+          const { content, reasoningChars, finishReason, sawDone } = parseSSEPayload(sseText);
 
-        // A stream that ends without a finish_reason AND without [DONE] died
-        // mid-generation (gateway drop, aggregator hang-up — documented
-        // history on this endpoint). Its content is truncated by definition;
-        // never ship it.
-        if (finishReason === null && !sawDone) {
-          return {
-            code: -1, signal: null, stdout: "",
-            stderr: "stream ended without finish_reason or [DONE] — the provider closed early, so the response is truncated. Retry the run; if this persists, check the aggregator.",
-            timedOut: false,
-          };
-        }
+          // A stream that ends without a finish_reason AND without [DONE] died
+          // mid-generation (gateway drop, aggregator hang-up — documented
+          // history on this endpoint). Its content is truncated by definition;
+          // never ship it.
+          if (finishReason === null && !sawDone) {
+            return {
+              code: -1, signal: null, stdout: "",
+              stderr: "stream ended without finish_reason or [DONE] — the provider closed early, so the response is truncated. Retry the run; if this persists, check the aggregator.",
+              timedOut: false,
+            };
+          }
 
-        // A truncated stream is never trustworthy: an earlier FILE block could
-        // be "complete" while the final one is cut off, which would open a
-        // silently-incomplete PR. Fail the whole run instead.
-        if (finishReason === "length") {
-          return {
-            code: -1, signal: null, stdout: "",
-            stderr: `stream ended with finish_reason=length — the response is truncated (max_tokens=${backend.maxTokens}). Truncated output is never committed; raise DOCS_AGENT_GLM_MAX_TOKENS or simplify the prompt.`,
-            timedOut: false,
-          };
+          // A truncated stream is never trustworthy: an earlier FILE block could
+          // be "complete" while the final one is cut off, which would open a
+          // silently-incomplete PR. Fail the whole run instead.
+          if (finishReason === "length") {
+            return {
+              code: -1, signal: null, stdout: "",
+              stderr: `stream ended with finish_reason=length — the response is truncated (max_tokens=${backend.maxTokens}). Truncated output is never committed; raise ${backend.maxTokensEnv} or simplify the prompt.`,
+              timedOut: false,
+            };
+          }
+
+          // A non-"stop" terminal reason means the provider cut the response
+          // short (policy/safety truncation like content_filter) — partial
+          // FILE blocks from such a stream are never committed.
+          if (finishReason !== null && finishReason !== "stop") {
+            return {
+              code: -1, signal: null, stdout: "",
+              stderr: `stream ended with finish_reason=${finishReason} — the provider cut the response short; only "stop" is an accepted terminal reason. Partial output is never committed.`,
+              timedOut: false,
+            };
+          }
+          if (!content && reasoningChars > 0) {
+            return {
+              code: -1, signal: null, stdout: "",
+              stderr: `Model produced ${reasoningChars} chars of reasoning but no content (token budget exhausted during thinking). Raise ${backend.maxTokensEnv} (current ${backend.maxTokens}) or simplify the prompt.`,
+              timedOut: false,
+            };
+          }
+          return { code: 0, signal: null, stdout: content, stderr: "", timedOut: false };
         }
-        if (!content && reasoningChars > 0) {
-          return {
-            code: -1, signal: null, stdout: "",
-            stderr: `Model produced ${reasoningChars} chars of reasoning but no content (token budget exhausted during thinking). Raise DOCS_AGENT_GLM_MAX_TOKENS (current ${backend.maxTokens}) or simplify the prompt.`,
-            timedOut: false,
-          };
-        }
-        return { code: 0, signal: null, stdout: content, stderr: "", timedOut: false };
       } catch (err) {
         const timedOut = err.name === "TimeoutError" || err.name === "AbortError";
         return { code: -1, signal: null, stdout: "", stderr: `fetch error: ${err.message}`, timedOut };

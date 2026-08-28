@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { parseSSEPayload } from "../docs-agent.mjs";
+import { buildApiRequestBody, parseSSEPayload, retryAfterDelayMs, validateGlmReasoningEffort } from "../docs-agent.mjs";
 
 const testDir = path.dirname(fileURLToPath(import.meta.url));
 const driverPath = path.resolve(testDir, "..", "docs-agent.mjs");
@@ -240,6 +240,138 @@ function committedFiles(docsRepo) {
     .split("\n")
     .filter(Boolean);
 }
+function normalizedProviderBlock(source) {
+  const match = source.match(/^\s+glm:\s*\{([\s\S]*?)^\s+\},$/m);
+  assert.ok(match, "the driver must keep a named glm provider block");
+  return match[1].replace(/\/\/.*$/gm, "").replace(/\s+/g, " ").trim();
+}
+
+function normalizedWorkflowProviderEnv(template) {
+  const names = [
+    "DOCS_AGENT_SOURCE_TOKEN",
+    "GH_TOKEN",
+    "CLOUDFLARE_ACCOUNT_ID",
+    "DOCS_AGENT_GLM_API_BASE",
+    "DOCS_AGENT_GLM_MODEL",
+    "DOCS_AGENT_GLM_MAX_TOKENS",
+    "DOCS_AGENT_GLM_REASONING_EFFORT",
+    "GLM_API_KEY",
+  ];
+  return Object.fromEntries(
+    names.map((name) => {
+      const match = template.match(new RegExp(`^\\s+${name}:\\s*(.+)$`, "m"));
+      return [name, match?.[1]?.trim() ?? null];
+    }),
+  );
+}
+
+const TASK1_PROVIDER_BLOCK_FIXTURE = Object.freeze([
+  'type: "api"',
+  'apiBase: (process.env.DOCS_AGENT_GLM_API_BASE || "").replace(/\\/+$/, "")',
+  'apiBaseEnv: "DOCS_AGENT_GLM_API_BASE"',
+  "model: process.env.DOCS_AGENT_GLM_MODEL || CLOUDFLARE_GLM_53_MODEL",
+  'reasoningEffort: process.env.DOCS_AGENT_GLM_REASONING_EFFORT || "high"',
+  'reasoningEffortEnv: "DOCS_AGENT_GLM_REASONING_EFFORT"',
+  'apiKeyEnv: "GLM_API_KEY"',
+  "maxTokens: Number(process.env.DOCS_AGENT_GLM_MAX_TOKENS || 49152)",
+  'maxTokensEnv: "DOCS_AGENT_GLM_MAX_TOKENS"',
+]);
+
+test("standalone provider and template match the normalized Task 1 contract", () => {
+  const driverSource = readFileSync(driverPath, "utf8");
+  const normalized = normalizedProviderBlock(driverSource);
+  for (const fragment of TASK1_PROVIDER_BLOCK_FIXTURE) {
+    assert.ok(normalized.includes(fragment), `provider block is missing Task 1 fragment: ${fragment}`);
+  }
+  assert.match(driverSource, /const CLOUDFLARE_GLM_53_MODEL = "@cf\/zai-org\/glm-5\.3-flash";/);
+  assert.match(driverSource, /cloudflareMode = accountId !== "" \|\| apiBaseHostname === "api\.cloudflare\.com";/);
+  assert.match(driverSource, /const expectedApiBase = `https:\/\/api\.cloudflare\.com\/client\/v4\/accounts\/\$\{accountId\}\/ai\/v1`;/);
+
+  assert.equal(retryAfterDelayMs(new Headers({ "Retry-After": "2" }), 1_000), 2_000);
+  assert.equal(retryAfterDelayMs(new Headers({ "Retry-After": "99" }), 1_000), 5_000);
+  assert.equal(retryAfterDelayMs(new Headers(), 1_000), 250);
+
+  const request = buildApiRequestBody(
+    {
+      model: "@cf/zai-org/glm-5.3-flash",
+      maxTokens: 49152,
+      reasoningEffort: "high",
+      reasoningEffortEnv: "DOCS_AGENT_GLM_REASONING_EFFORT",
+    },
+    "prompt",
+    true,
+  );
+  assert.deepEqual(request, {
+    model: "@cf/zai-org/glm-5.3-flash",
+    messages: [{ role: "user", content: "prompt" }],
+    temperature: 0.2,
+    max_tokens: 49152,
+    reasoning_effort: "high",
+    stream: true,
+  });
+
+  for (const value of ["", "none", "max", "xhigh", "HIGH"]) {
+    assert.match(
+      validateGlmReasoningEffort(
+        {
+          model: "@cf/zai-org/glm-5.3-flash",
+          reasoningEffort: "high",
+          reasoningEffortEnv: "DOCS_AGENT_GLM_REASONING_EFFORT",
+        },
+        true,
+        value,
+      ),
+      /must be low, medium, or high/,
+    );
+  }
+  assert.equal(
+    validateGlmReasoningEffort(
+      {
+        model: "@cf/zai-org/glm-5.3-flash",
+        reasoningEffort: "high",
+        reasoningEffortEnv: "DOCS_AGENT_GLM_REASONING_EFFORT",
+      },
+      true,
+      "low",
+    ),
+    null,
+  );
+  assert.equal(
+    validateGlmReasoningEffort(
+      {
+        model: "@cf/zai-org/glm-5.2",
+        reasoningEffort: "high",
+        reasoningEffortEnv: "DOCS_AGENT_GLM_REASONING_EFFORT",
+      },
+      true,
+      "invalid",
+    ),
+    null,
+    "legacy Cloudflare models retain their historical reasoning wire format",
+  );
+  assert.equal(
+    buildApiRequestBody(
+      { model: "@cf/zai-org/glm-5.2", maxTokens: 49152, reasoningEffort: "high" },
+      "prompt",
+      true,
+    ).reasoning_effort,
+    undefined,
+  );
+
+  const template = readFileSync(path.resolve(testDir, "..", "docs-agent.yml"), "utf8");
+  assert.match(template, /name:\s+hosted \(GLM 5\.2 — drafts doc update\)/);
+  assert.deepEqual(normalizedWorkflowProviderEnv(template), {
+    DOCS_AGENT_SOURCE_TOKEN: "${{ github.token }}",
+    GH_TOKEN: "${{ secrets.DOCS_REPO_PAT }}",
+    CLOUDFLARE_ACCOUNT_ID: "${{ vars.CLOUDFLARE_ACCOUNT_ID }}",
+    DOCS_AGENT_GLM_API_BASE: "${{ vars.DOCS_AGENT_GLM_API_BASE }}",
+    DOCS_AGENT_GLM_MODEL: "${{ vars.DOCS_AGENT_GLM_MODEL }}",
+    DOCS_AGENT_GLM_MAX_TOKENS: "${{ vars.DOCS_AGENT_GLM_MAX_TOKENS }}",
+    DOCS_AGENT_GLM_REASONING_EFFORT: "${{ vars.DOCS_AGENT_GLM_REASONING_EFFORT || 'high' }}",
+    GLM_API_KEY: "${{ secrets.CLOUDFLARE_WORKERS_AI_TOKEN }}",
+  });
+  assert.doesNotMatch(template, /GLM_API_KEY:\s*\$\{\{\s*secrets\.GLM_API_KEY\s*\}\}/);
+});
 
 test("T1: byte-identical file blocks do not create branches, commits, or PRs", async (t) => {
   for (const existingContent of ["# Reference\n", "# Reference without final newline"]) {
