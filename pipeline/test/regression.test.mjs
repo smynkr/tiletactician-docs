@@ -621,7 +621,7 @@ test("T2: changed content writes the flat source, regenerates content/docs, and 
   assert.match(calls.at(-1), /--base main/);
   const prBody = readFileSync(sandbox.prBodyPath, "utf8");
   assert.ok(
-    prBody.includes(`(**claude** CLI (\`${sandbox.backendPath}\`))`),
+    prBody.includes(`(backend: **claude** CLI (\`${sandbox.backendPath}\`))`),
     "generated PR body must include the receipt label for the actual backend command",
   );
 });

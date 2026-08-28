@@ -1312,7 +1312,7 @@ function applyChangesAndOpenPR(opts, { fileBlocks, prMeta, backendName, droppedP
   }
 
   const bodyLines = [
-    `Drafted automatically by \`docs-agent.mjs\` (${backendReceiptLabel(backendName)}).`,
+    `Drafted automatically by \`docs-agent.mjs\` (backend: ${backendReceiptLabel(backendName)}).`,
     "",
     `Source PR: ${prMeta.url || `local range ${opts.range}`}`,
     prMeta.title ? `Source title: ${prMeta.title}` : "",
