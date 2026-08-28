@@ -535,6 +535,7 @@ test("non-GitHub children scrub credentials while destination git preserves only
     GIT_CONFIG_KEY_0: "credential.helper",
     GIT_CONFIG_VALUE_0: "!printf secret",
     GIT_CONFIG_PARAMETERS: "'credential.helper=store'",
+    SSH_AUTH_SOCK: "/tmp/ssh-agent.sock",
   };
   const observed = scrubbedChildEnv(input);
   assert.equal(observed.SAFE_VALUE, "retained");
@@ -548,6 +549,7 @@ test("non-GitHub children scrub credentials while destination git preserves only
     "GIT_CONFIG_KEY_0",
     "GIT_CONFIG_VALUE_0",
     "GIT_CONFIG_PARAMETERS",
+    "SSH_AUTH_SOCK",
   ]) {
     assert.equal(observed[key], undefined, `${key} must not reach a non-GitHub child`);
   }

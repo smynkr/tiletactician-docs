@@ -326,6 +326,7 @@ const GITHUB_CREDENTIAL_ENV_NAMES = new Set([
   "GIT_SSH",
   "GIT_SSH_COMMAND",
   "SSH_ASKPASS",
+  "SSH_AUTH_SOCK",
 ]);
 
 /**
