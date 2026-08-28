@@ -10,6 +10,7 @@ import {
   buildApiRequestBody,
   deriveCloudflareMode,
   scrubbedChildEnv,
+  destinationGitEnv,
   parseSSEPayload,
   retryAfterDelayMs,
   validateCloudflareConfig,
@@ -523,7 +524,7 @@ test("exact Cloudflare GLM 5.3 Flash mode fails closed before any fetch", async 
   }
 });
 
-test("non-GitHub child environments strip GitHub and git-config credentials", (t) => {
+test("non-GitHub children scrub credentials while destination git preserves only destination auth", (t) => {
   const input = {
     SAFE_VALUE: "retained",
     DOCS_AGENT_SOURCE_TOKEN: "source-token",
@@ -568,7 +569,22 @@ test("non-GitHub child environments strip GitHub and git-config credentials", (t
   assert.deepEqual(migrationRecord.env, {});
   const gitRecords = readFileSync(sandbox.gitEnvLogPath, "utf8").trim().split("\n").filter(Boolean);
   assert.ok(gitRecords.length > 0, "driver must invoke repository git subprocesses");
-  assert.deepEqual(new Set(gitRecords), new Set(["empty"]));
+  assert.deepEqual(new Set(gitRecords), new Set(["empty", "present"]));
+  assert.deepEqual(
+    destinationGitEnv({
+      DOCS_AGENT_SOURCE_TOKEN: "source",
+      GH_TOKEN: "destination",
+      GIT_CONFIG_COUNT: "1",
+      GIT_CONFIG_KEY_0: "http.https://github.com/.extraheader",
+      GIT_CONFIG_VALUE_0: "AUTHORIZATION: basic destination",
+    }),
+    {
+      GH_TOKEN: "destination",
+      GIT_CONFIG_COUNT: "1",
+      GIT_CONFIG_KEY_0: "http.https://github.com/.extraheader",
+      GIT_CONFIG_VALUE_0: "AUTHORIZATION: basic destination",
+    },
+  );
 });
 
 test("T1: byte-identical file blocks do not create branches, commits, or PRs", async (t) => {

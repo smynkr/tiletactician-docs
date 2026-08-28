@@ -351,6 +351,12 @@ function sourceGhEnv() {
   return sourceToken ? { ...process.env, GH_TOKEN: sourceToken } : process.env;
 }
 
+export function destinationGitEnv(baseEnv = process.env) {
+  const childEnv = { ...baseEnv };
+  delete childEnv.DOCS_AGENT_SOURCE_TOKEN;
+  return childEnv;
+}
+
 // ---------------------------------------------------------------------------
 // Step 1: collect + filter the diff
 // ---------------------------------------------------------------------------
@@ -1225,7 +1231,7 @@ function applyChangesAndOpenPR(opts, { fileBlocks, prMeta, backendName, droppedP
 
   assertGitRepo(opts.docsRepoPath);
   const baseBranch = resolveBaseBranch(opts);
-  run("git", ["-C", opts.docsRepoPath, "fetch", "origin", baseBranch]);
+  run("git", ["-C", opts.docsRepoPath, "fetch", "origin", baseBranch], { env: destinationGitEnv() });
 
   const existingPr = runAllowFail("gh", [
     "pr", "list", "--repo", opts.docsRepo, "--head", branchName, "--state", "open", "--json", "number,url",
@@ -1304,7 +1310,7 @@ function applyChangesAndOpenPR(opts, { fileBlocks, prMeta, backendName, droppedP
 
   const pushArgs = ["-C", opts.docsRepoPath, "push", "-u", "origin", branchName];
   if (opts.force) pushArgs.push("--force");
-  run("git", pushArgs);
+  run("git", pushArgs, { env: destinationGitEnv() });
 
   if (existingPrJson.length > 0) {
     log(`branch pushed; existing PR updated: ${existingPrJson[0].url}`);
