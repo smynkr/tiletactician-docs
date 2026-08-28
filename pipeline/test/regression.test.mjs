@@ -9,6 +9,7 @@ import {
   backendReceiptLabel,
   buildApiRequestBody,
   deriveCloudflareMode,
+  scrubbedChildEnv,
   parseSSEPayload,
   retryAfterDelayMs,
   validateCloudflareConfig,
