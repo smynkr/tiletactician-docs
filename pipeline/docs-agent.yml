@@ -1,27 +1,38 @@
-# docs-agent — auto-draft doc updates on merged PRs using Neural Watt GLM 5.2.
+# docs-agent — auto-draft doc updates on merged PRs using Cloudflare GLM 5.3 Flash.
 #
 # TEMPLATE: copy this file to `.github/workflows/docs-agent.yml` in EACH
 # product repo and set the two marked spots for the product. It is configured
-# for the hosted GLM backend (metered API key). The driver itself always runs
-# from the docs repo checkout below — fix the driver there once, and every
-# product repo picks it up on its next run.
+# for the hosted GLM backend (a metered API key). The driver itself always runs
+# from the docs repo checkout below — fix it there once, and every product repo
+# picks it up on its next run.
 #
-# Flow: PR merged → detect user-facing changes → GLM 5.2 drafts MDX against
+# Flow: PR merged → detect user-facing changes → GLM-5.3-Flash drafts MDX against
 # the CANONICAL flat sources → run-migration regenerates content/docs →
 # draft PR opened against smynkr/tiletactician-docs (base branch auto-detected).
+# This hosted template never configures a fallback backend: provider, payment,
+# authentication, and timeout failures are reported without another metered
+# request. The driver makes exactly one same-provider retry only when its first
+# request receives HTTP 429, honoring a bounded `Retry-After` delay under one
+# absolute timeout budget.
+#
+# GitHub auth is split by direction:
+#   DOCS_AGENT_SOURCE_TOKEN = source PR reads (the source repository).
+#   GH_TOKEN (DOCS_REPO_PAT) = destination docs-repo operations.
+# The docs checkout never needs the source token, and the model receives only
+# its own metered API key.
 #
 # Required repo secrets:
-#   DOCS_REPO_PAT  — PAT with read on THIS product repo (the hosted job fetches
-#                    the PR diff via `gh`) plus Contents R/W + PRs R/W on
-#                    smynkr/tiletactician-docs (docs checkout + draft PR). A fine-grained
-#                    PAT must therefore be granted on all product repos; a classic
-#                    `repo`-scope PAT already covers them all.
-#   GLM_API_KEY    — Neural Watt GLM 5.2 metered API key
+#   DOCS_REPO_PAT  — PAT with Contents R/W + PRs R/W on
+#                    smynkr/tiletactician-docs (docs checkout + draft PR).
+#   CLOUDFLARE_WORKERS_AI_TOKEN — account-scoped Workers AI token
 #
 # Required repo variables:
-#   DOCS_AGENT_GLM_API_BASE — e.g. https://api.neuralwatt.com/v1
-#   DOCS_AGENT_GLM_MODEL    — e.g. glm-5.2
-
+#   CLOUDFLARE_ACCOUNT_ID         — exactly 32 lowercase hexadecimal characters
+#   DOCS_AGENT_GLM_API_BASE      — Cloudflare OpenAI-compatible AI endpoint
+#   DOCS_AGENT_GLM_MODEL         — optional; defaults to @cf/zai-org/glm-5.3-flash
+#   DOCS_AGENT_GLM_MAX_TOKENS    — defaults to 49152
+#   DOCS_AGENT_GLM_REASONING_EFFORT — only exact Cloudflare GLM-5.3-Flash;
+#                                    low, medium, or high; defaults to high
 name: docs-agent
 
 on:
@@ -114,12 +125,16 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Run docs-agent with GLM 5.2
+      - name: Run docs-agent with Cloudflare GLM 5.3 Flash
         env:
+          DOCS_AGENT_SOURCE_TOKEN: ${{ github.token }}
           GH_TOKEN: ${{ secrets.DOCS_REPO_PAT }}
-          GLM_API_KEY: ${{ secrets.GLM_API_KEY }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          GLM_API_KEY: ${{ secrets.CLOUDFLARE_WORKERS_AI_TOKEN }}
           DOCS_AGENT_GLM_API_BASE: ${{ vars.DOCS_AGENT_GLM_API_BASE }}
           DOCS_AGENT_GLM_MODEL: ${{ vars.DOCS_AGENT_GLM_MODEL }}
+          DOCS_AGENT_GLM_MAX_TOKENS: ${{ vars.DOCS_AGENT_GLM_MAX_TOKENS }}
+          DOCS_AGENT_GLM_REASONING_EFFORT: ${{ vars.DOCS_AGENT_GLM_REASONING_EFFORT || 'high' }}
           DOCS_AGENT_LOG_DIR: ${{ github.workspace }}/docs-agent-logs
         run: |
           node tiletactician-docs/pipeline/docs-agent.mjs \
