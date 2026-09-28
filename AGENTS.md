@@ -45,3 +45,8 @@ python3 -m unittest discover -s scripts/sot_wiki -p 'test_*.py'
 The combined repository gate is `npm run memory:check`. Regenerate derived
 memory surfaces with `npm run memory:generate`; never hand-edit
 `docs/AGENT_SOT.md`.
+
+## Linux CI runner
+
+Existing Linux GitHub Actions jobs use the runner selector `[self-hosted, axiom-cloudflare-ubuntu-2404]`. They require an isolated Cloudflare Ubuntu 24.04 runner to be provisioned, registered with both labels, and online. Repository workflows do not provision the runner.
+
