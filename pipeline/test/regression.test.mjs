@@ -351,7 +351,7 @@ test("generic custom base/model and garbage retired account ID are accepted", ()
 });
 
 test("invalid GLM effort fails before fetching", () => {
-  const result = runBackendProbe({ ...process.env, GLM_API_KEY: "test-key", DOCS_AGENT_GLM_REASONING_EFFORT: "extreme" });
+  const result = runBackendProbe({ ...process.env, GLM_API_KEY: "k-t1", DOCS_AGENT_GLM_REASONING_EFFORT: "extreme" });
   assert.equal(result.fetchCalled, false);
   assert.match(result.stderr, /DOCS_AGENT_GLM_REASONING_EFFORT must be low, medium, high, or max/);
   for (const reasoningEffort of VALID_GLM_REASONING_EFFORTS) assert.equal(validateGlmReasoningEffort({ reasoningEffort }), null);
@@ -382,8 +382,8 @@ test("workflow maps z.ai subscription and optional OpenRouter fallback", () => {
 test("non-GitHub children scrub credentials while destination git preserves only destination auth", (t) => {
   const input = {
     SAFE_VALUE: "retained",
-    GLM_API_KEY: "primary-test-key",
-    GLM_FALLBACK_API_KEY: "fallback-test-key",
+    GLM_API_KEY: "k-p2",
+    GLM_FALLBACK_API_KEY: "k-f2",
     DOCS_AGENT_SOURCE_TOKEN: "source-token",
     GH_TOKEN: "destination-token",
     GITHUB_TOKEN: "github-token",
@@ -434,8 +434,8 @@ test("non-GitHub children scrub credentials while destination git preserves only
   assert.deepEqual(
     destinationGitEnv({
       DOCS_AGENT_SOURCE_TOKEN: "source",
-      GLM_API_KEY: "primary-test-key",
-      GLM_FALLBACK_API_KEY: "fallback-test-key",
+      GLM_API_KEY: "k-p2",
+      GLM_FALLBACK_API_KEY: "k-f2",
       GH_TOKEN: "destination",
       GIT_CONFIG_COUNT: "1",
       GIT_CONFIG_KEY_0: "http.https://github.com/.extraheader",
@@ -782,14 +782,14 @@ test("GLM fallback uses one request, pinned effort, and the serving receipt", as
     });
     await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
     const base = `http://127.0.0.1:${server.address().port}`;
-    const backend = { type: "api", apiBase: `${base}/primary`, model: "primary-model", apiKey: "primary-test-key", maxTokens: 100, reasoningEffort: "max", ...(enabled ? { fallbackApiBase: `${base}/fallback`, fallbackModel: "fallback-model", fallbackApiKey: "fallback-test-key" } : {}) };
+    const backend = { type: "api", apiBase: `${base}/primary`, model: "primary-model", apiKey: "k-p2", maxTokens: 100, reasoningEffort: "max", ...(enabled ? { fallbackApiBase: `${base}/fallback`, fallbackModel: "fallback-model", fallbackApiKey: "k-f2" } : {}) };
     try {
       const result = await runApiBackend("glm", backend, "same prompt", 1000);
       assert.equal(result.code === 0, succeeds);
       assert.equal(requests.length, statuses.length + (succeeds ? 1 : 0));
       if (succeeds) {
         assert.equal(requests.at(-1).path, "/fallback/chat/completions");
-        assert.equal(requests.at(-1).authorization, "Bearer fallback-test-key");
+        assert.equal(requests.at(-1).authorization, "Bearer k-f2");
         assert.equal(requests.at(-1).body.model, "fallback-model");
         assert.equal(requests.at(-1).body.reasoning_effort, "max");
         assert.deepEqual({ ...requests.at(-1).body, model: "primary-model" }, requests[0].body);
@@ -802,7 +802,7 @@ test("GLM fallback uses one request, pinned effort, and the serving receipt", as
 });
 
 test("fallback handles transport failures but preserves stream/output boundaries", async (t) => {
-  const backend = { type: "api", apiBase: "https://primary.test/v1", model: "primary", apiKey: "test-primary", maxTokens: 100, reasoningEffort: "max", fallbackApiBase: "https://openrouter.ai/api/v1", fallbackModel: "fallback", fallbackApiKey: "test-fallback" };
+  const backend = { type: "api", apiBase: "https://primary.test/v1", model: "primary", apiKey: "k-p1", maxTokens: 100, reasoningEffort: "max", fallbackApiBase: "https://openrouter.ai/api/v1", fallbackModel: "fallback", fallbackApiKey: "k-f1" };
   const stream = (content, reason = "stop") => new Response(`data: ${JSON.stringify({ choices: [{ delta: { content }, ...(reason ? { finish_reason: reason } : {}) }] })}\n`);
   const cases = [
     ["network TypeError", () => { throw new TypeError("connection reset"); }, true],
@@ -838,8 +838,8 @@ test("fallback handles transport failures but preserves stream/output boundaries
     assert.equal(calls, 2);
   });
   await t.test("errors cannot echo configured keys", async (t) => {
-    t.mock.method(globalThis, "fetch", async () => new Response("echo test-primary test-fallback", { status: 400 }));
-    assert.doesNotMatch((await runApiBackend("glm", backend, "prompt", 1000)).stderr, /test-primary|test-fallback/);
+    t.mock.method(globalThis, "fetch", async () => new Response("echo k-p1 k-f1", { status: 400 }));
+    assert.doesNotMatch((await runApiBackend("glm", backend, "prompt", 1000)).stderr, /k-p1|k-f1/);
   });
   await t.test("malformed primary URL cannot break fallback logging", async (t) => {
     let calls = 0;
