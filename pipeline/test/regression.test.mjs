@@ -750,8 +750,10 @@ test("fallback effort mapping and deterministic status exclusions", () => {
   assert.equal(fallbackReasoningEffort("https://example.test/v1", "max"), "max");
   assert.equal(fallbackReasoningEffort("https://openrouter.ai.example.test/v1", "max"), "max");
   assert.equal(fallbackReasoningEffort("https://openrouter.ai/api/v1", "high"), "high");
-  for (const status of [401, 403, 408, 409, 429, 500, 503, 599]) assert.equal(isFallbackEligibleStatus(status, "failure"), true);
-  for (const status of [400, 402, 404, 418, 422]) assert.equal(isFallbackEligibleStatus(status, "quota 1113"), false);
+  for (const status of [401, 403, 408, 429, 500, 503, 599]) assert.equal(isFallbackEligibleStatus(status, "failure"), true);
+  for (const status of [400, 422]) assert.equal(isFallbackEligibleStatus(status, "quota 1113"), false);
+  for (const status of [402, 404, 418]) assert.equal(isFallbackEligibleStatus(status, "quota 1113"), true);
+  for (const status of [402, 404, 409, 418]) assert.equal(isFallbackEligibleStatus(status, "failure"), false);
   for (const body of ["1113", "1308", "1310", "insufficient balance", "usage limit", "quota"]) assert.equal(isFallbackEligibleStatus(200, body), true);
 });
 
@@ -764,7 +766,7 @@ test("GLM fallback uses one request, pinned effort, and the serving receipt", as
     ["401 then fallback", [401], true, true],
     ["403 then fallback", [403], true, true],
     ["408 then fallback", [408], true, true],
-    ["409 then fallback", [409], true, true],
+    ["409 surfaces without fallback", [409], true, false],
   ];
   for (const [name, statuses, enabled, succeeds] of cases) await t.test(name, async () => {
     const requests = [];
@@ -873,4 +875,49 @@ test("provider metadata advertises z.ai defaults and max reasoning", () => {
   assert.equal(contract.defaultModel, "glm-5.3-flash");
   assert.equal(contract.defaultReasoningEffort, "high");
   assert.deepEqual([...contract.allowedReasoningEfforts], ["low", "medium", "high", "max"]);
+});
+
+test("fallback eligibility: 409 surfaces, quota-bodied 4xx falls back, 400/422 never do", () => {
+  assert.equal(isFallbackEligibleStatus(409, "conflict"), false);
+  assert.equal(isFallbackEligibleStatus(404, "not found"), false);
+  assert.equal(isFallbackEligibleStatus(402, '{"error":{"code":"1113","message":"Insufficient balance"}}'), true);
+  assert.equal(isFallbackEligibleStatus(403, "forbidden"), true);
+  assert.equal(isFallbackEligibleStatus(400, "quota parameter invalid"), false);
+  assert.equal(isFallbackEligibleStatus(422, "usage limit field invalid"), false);
+});
+
+test("fallbackReasoningEffort tolerates a malformed fallback base", () => {
+  assert.equal(fallbackReasoningEffort("not a url", "max"), "max");
+  assert.equal(fallbackReasoningEffort("", "high"), "high");
+});
+
+test("stream classification: quota words in reasoning and explicit error objects do not fall back", async (t) => {
+  const { createServer: createHttpServer } = await import("node:http");
+  const cases = [
+    ["reasoning mentions quota, no content", 'data: {"choices":[{"delta":{"reasoning_content":"the quota for this plan"},"finish_reason":"stop"}]}\n\ndata: [DONE]\n', false],
+    ["explicit non-quota error object without finish", 'data: {"error":{"code":"1210","message":"invalid parameter"}}\n\n', false],
+    ["explicit quota error object without finish", 'data: {"error":{"code":"1113","message":"Insufficient balance"}}\n\n', true],
+    ["dropped stream without error object", 'data: {"choices":[{"delta":{"content":"partial"},"finish_reason":null}]}\n\n', true],
+  ];
+  for (const [name, primaryBody, expectFallback] of cases) await t.test(name, async () => {
+    const paths = [];
+    const server = createHttpServer((req, res) => {
+      req.resume();
+      req.on("end", () => {
+        paths.push(req.url);
+        res.writeHead(200, { "Content-Type": "text/event-stream" });
+        if (req.url.startsWith("/primary")) res.end(primaryBody);
+        else res.end('data: {"choices":[{"delta":{"content":"ok"},"finish_reason":"stop"}]}\n\ndata: [DONE]\n');
+      });
+    });
+    await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+    const base = `http://127.0.0.1:${server.address().port}`;
+    try {
+      const result = await runApiBackend("glm", { type: "api", apiBase: `${base}/primary`, model: "m", apiKey: "k-p9", maxTokens: 100, reasoningEffort: "high", fallbackApiBase: `${base}/fallback`, fallbackModel: "fm", fallbackApiKey: "k-f9" }, "prompt", 2000);
+      assert.equal(paths.some((p) => p.startsWith("/fallback")), expectFallback);
+      assert.equal(result.code === 0, expectFallback);
+    } finally {
+      server.close();
+    }
+  });
 });

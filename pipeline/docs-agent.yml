@@ -9,11 +9,12 @@
 # Flow: PR merged → detect user-facing changes → GLM-5.3-Flash drafts MDX against
 # the CANONICAL flat sources → run-migration regenerates content/docs →
 # draft PR opened against smynkr/tiletactician-docs (base branch auto-detected).
-# This hosted template never configures a fallback backend: provider, payment,
-# authentication, and timeout failures are reported without another metered
-# request. The driver makes exactly one same-provider retry only when its first
-# request receives HTTP 429, honoring a bounded `Retry-After` delay under one
-# absolute timeout budget.
+# This hosted template configures no cross-model fallback backend. The driver
+# makes one same-provider retry only when its first request receives HTTP 429
+# (bounded `Retry-After` delay under one absolute timeout budget). When the
+# optional OpenRouter vars/secret below are set, a 401/403/408/429, 5xx, quota
+# or usage-limit, timeout, transport, or dropped-stream failure gets exactly one
+# same-model OpenRouter request; other 4xx (e.g. a deterministic 400) surface.
 #
 # GitHub auth is split by direction:
 #   DOCS_AGENT_SOURCE_TOKEN = source PR reads (the source repository).

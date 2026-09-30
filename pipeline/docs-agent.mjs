@@ -761,7 +761,9 @@ export function validateGlmReasoningEffort(backend) {
 }
 
 export function fallbackReasoningEffort(apiBase, effort) {
-  return effort === "max" && new URL(apiBase).hostname === "openrouter.ai" ? "xhigh" : effort;
+  let hostname = "";
+  try { hostname = new URL(apiBase).hostname; } catch { return effort; }
+  return effort === "max" && hostname === "openrouter.ai" ? "xhigh" : effort;
 }
 
 // Keep every provider's configured wire format, including DeepSeek's absent effort.
@@ -790,10 +792,17 @@ function redactApiKeys(value, backend) {
 
 const API_SERVING = new Map();
 const QUOTA_SIGNAL = /\b(1113|1308|1310)\b|insufficient balance|usage limit|quota/i;
+// An explicit provider error object in the SSE body (not JSON-escaped model text).
+const STREAM_ERROR_OBJECT = /(?<!\\)"error"\s*:\s*\{/;
 
 export function isFallbackEligibleStatus(status, body) {
-  if (status >= 400 && status < 500 && ![401, 403, 408, 409, 429].includes(status)) return false;
-  return [401, 403, 408, 409, 429].includes(status) || status >= 500 || QUOTA_SIGNAL.test(body);
+  // Auth, timeout, rate-limit and 5xx are transient/host-specific. Other 4xx
+  // responses are deterministic request errors and surface unchanged, except an
+  // explicit quota/usage-limit body (e.g. 402 insufficient balance); 400 and 422
+  // never fall back.
+  if ([401, 403, 408, 429].includes(status) || status >= 500) return true;
+  if (status === 400 || status === 422) return false;
+  return QUOTA_SIGNAL.test(String(body));
 }
 
 
@@ -869,7 +878,9 @@ async function requestApiBackend(backendName, backend, prompt, timeoutMs, deadli
         return {
           code: -1, signal: null, stdout: "",
           stderr: "stream ended without finish_reason or [DONE] — the provider closed early, so the response is truncated. Retry the run; if this persists, check the aggregator.",
-          timedOut: false, fallbackEligible: true,
+          // An explicit provider error object is a request failure, not a
+          // dropped stream; only a quota error of that kind may fall back.
+          timedOut: false, fallbackEligible: !STREAM_ERROR_OBJECT.test(sseText) || QUOTA_SIGNAL.test(sseText),
         };
       }
 
@@ -894,7 +905,9 @@ async function requestApiBackend(backendName, backend, prompt, timeoutMs, deadli
           timedOut: false,
         };
       }
-      if (!content && QUOTA_SIGNAL.test(sseText)) {
+      // Only a payload with neither content nor reasoning is a provider error;
+      // reasoning that merely mentions "quota" is not a quota failure.
+      if (!content && reasoningChars === 0 && QUOTA_SIGNAL.test(sseText)) {
         return { code: -1, signal: null, stdout: "", stderr: "provider quota or usage limit", timedOut: false, fallbackEligible: true };
       }
       if (!content && reasoningChars > 0) {
@@ -934,6 +947,7 @@ export async function runApiBackend(backendName, backend, prompt, timeoutMs) {
     API_SERVING.set(backendName, { ...serving, servedBy });
     return { ...result, servedBy, model: serving.model };
   }
+  API_SERVING.delete(backendName);
   return result;
 }
 
