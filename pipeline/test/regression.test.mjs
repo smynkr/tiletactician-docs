@@ -843,11 +843,11 @@ test("fallback handles transport failures but preserves stream/output boundaries
     t.mock.method(globalThis, "fetch", async () => new Response("echo k-p1 k-f1", { status: 400 }));
     assert.doesNotMatch((await runApiBackend("glm", backend, "prompt", 1000)).stderr, /k-p1|k-f1/);
   });
-  await t.test("malformed primary URL cannot break fallback logging", async (t) => {
+  await t.test("malformed primary URL is a configuration error and never falls back", async (t) => {
     let calls = 0;
     t.mock.method(globalThis, "fetch", async () => { if (++calls === 1) throw new TypeError("invalid URL"); return stream("answer"); });
-    assert.equal((await runApiBackend("glm", { ...backend, apiBase: "invalid" }, "prompt", 1000)).code, 0);
-    assert.equal(calls, 2);
+    assert.notEqual((await runApiBackend("glm", { ...backend, apiBase: "invalid" }, "prompt", 1000)).code, 0);
+    assert.equal(calls, 0);
   });
   await t.test("fallback shares the primary timeout budget", async (t) => {
     let calls = 0;
@@ -896,6 +896,9 @@ test("stream classification: quota words in reasoning and explicit error objects
   const cases = [
     ["reasoning mentions quota, no content", 'data: {"choices":[{"delta":{"reasoning_content":"the quota for this plan"},"finish_reason":"stop"}]}\n\ndata: [DONE]\n', false],
     ["explicit non-quota error object without finish", 'data: {"error":{"code":"1210","message":"invalid parameter"}}\n\n', false],
+    ["explicit 401 error object without finish", 'data: {"error":{"status":401,"message":"invalid key"}}\n\n', true],
+    ["explicit 503 error object without finish", 'data: {"error":{"code":503,"message":"overloaded"}}\n\n', true],
+    ["quota word in content with deterministic error", 'data: {"choices":[{"delta":{"content":"quota"},"finish_reason":null}]}\n\ndata: {"error":{"status":400,"message":"bad request"}}\n\n', false],
     ["explicit quota error object without finish", 'data: {"error":{"code":"1113","message":"Insufficient balance"}}\n\n', true],
     ["dropped stream without error object", 'data: {"choices":[{"delta":{"content":"partial"},"finish_reason":null}]}\n\n', true],
   ];
@@ -920,4 +923,10 @@ test("stream classification: quota words in reasoning and explicit error objects
       server.close();
     }
   });
+});
+
+test("an invalid primary API base is a configuration error, not a fallback trigger", async () => {
+  const result = await runApiBackend("glm", { type: "api", apiBase: "not a url", model: "m", apiKey: "k-p8", maxTokens: 100, reasoningEffort: "high", fallbackApiBase: "http://127.0.0.1:9/fallback", fallbackModel: "fm", fallbackApiKey: "k-f8" }, "prompt", 1000);
+  assert.notEqual(result.code, 0);
+  assert.match(result.stderr, /invalid API base/);
 });

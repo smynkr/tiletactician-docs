@@ -74,7 +74,7 @@ Optional OpenRouter fallback is off unless all three settings are non-empty:
 The primary retains its one bounded 429 retry. Eligible authentication,
 timeout, network, quota, 5xx, and incomplete-stream failures then allow one
 fallback request within the remaining overall timeout. Deterministic request
-errors (400, 404, 422 and other non-eligible 4xx), length truncation, and
+errors (400, 422, and other 4xx without an explicit quota/usage-limit signal), length truncation, and
 invalid output do not trigger fallback. The fallback pins the same effort,
 mapping `max` to `xhigh` only for host `openrouter.ai`. Logs and PR receipts
 identify the actual serving host and model; neither includes API keys.
