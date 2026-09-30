@@ -800,19 +800,26 @@ const TRANSIENT_PROVIDER_SIGNAL = /\b(timeout|timed out|overloaded|unavailable|i
 // the parsed error object is inspected, never model content or reasoning text.
 // Returns null when the stream carries no error object.
 export function classifySseProviderError(sseText) {
-  for (const line of String(sseText).split(/\r?\n/)) {
+  const text = String(sseText);
+  const candidates = [];
+  for (const line of text.split(/\r?\n/)) {
     const m = /^data:\s*(\{.*\})\s*$/.exec(line);
-    if (!m) continue;
+    if (m) candidates.push(m[1]);
+  }
+  // A provider may answer a streaming request with a plain JSON error body.
+  if (candidates.length === 0 && text.trim().startsWith("{")) candidates.push(text.trim());
+  for (const raw of candidates) {
     let event;
-    try { event = JSON.parse(m[1]); } catch { continue; }
+    try { event = JSON.parse(raw); } catch { continue; }
     const error = event && typeof event === "object" ? event.error : null;
     if (!error || typeof error !== "object") continue;
     const body = JSON.stringify(error);
     const status = Number(error.status ?? error.http_status ?? error.code);
+    const detail = body.slice(0, 500);
     if (Number.isInteger(status) && status >= 400 && status <= 599) {
-      return { fallbackEligible: isFallbackEligibleStatus(status, body) };
+      return { fallbackEligible: isFallbackEligibleStatus(status, body), detail };
     }
-    return { fallbackEligible: QUOTA_SIGNAL.test(body) || TRANSIENT_PROVIDER_SIGNAL.test(body) };
+    return { fallbackEligible: QUOTA_SIGNAL.test(body) || TRANSIENT_PROVIDER_SIGNAL.test(body), detail };
   }
   return null;
 }
@@ -895,6 +902,13 @@ async function requestApiBackend(backendName, backend, prompt, timeoutMs, deadli
 
       const { content, reasoningChars, finishReason, sawDone } = parseSSEPayload(sseText);
 
+      // An explicit provider error object (SSE event or plain JSON body) fails
+      // the attempt whatever streamed before it; its own status/code decides
+      // fallback eligibility. Content and reasoning text are never inspected.
+      const sseProviderError = classifySseProviderError(sseText);
+      if (sseProviderError) {
+        return { code: -1, signal: null, stdout: "", stderr: `provider error event in stream: ${redactApiKeys(sseProviderError.detail, backend)}`, timedOut: false, fallbackEligible: sseProviderError.fallbackEligible };
+      }
       // A stream that ends without a finish_reason AND without [DONE] died
       // mid-generation (gateway drop, aggregator hang-up — documented
       // history on this endpoint). Its content is truncated by definition;
@@ -905,7 +919,7 @@ async function requestApiBackend(backendName, backend, prompt, timeoutMs, deadli
           stderr: "stream ended without finish_reason or [DONE] — the provider closed early, so the response is truncated. Retry the run; if this persists, check the aggregator.",
           // An explicit provider error object is a request failure, not a
           // dropped stream; only a quota error of that kind may fall back.
-          timedOut: false, fallbackEligible: classifySseProviderError(sseText)?.fallbackEligible ?? true,
+          timedOut: false, fallbackEligible: true,
         };
       }
 
@@ -929,12 +943,6 @@ async function requestApiBackend(backendName, backend, prompt, timeoutMs, deadli
           stderr: `stream ended with finish_reason=${finishReason} — the provider cut the response short; only "stop" is an accepted terminal reason. Partial output is never committed.`,
           timedOut: false,
         };
-      }
-      // Only an explicit provider error object (never content or reasoning
-      // text) can make an empty stream fallback-eligible.
-      const sseProviderError = !content && reasoningChars === 0 ? classifySseProviderError(sseText) : null;
-      if (sseProviderError) {
-        return { code: -1, signal: null, stdout: "", stderr: "provider error event in stream", timedOut: false, fallbackEligible: sseProviderError.fallbackEligible };
       }
       if (!content && reasoningChars > 0) {
         return {

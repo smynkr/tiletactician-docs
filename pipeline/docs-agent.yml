@@ -27,7 +27,7 @@
 #                    smynkr/tiletactician-docs (docs checkout + draft PR).
 #   ZAI_API_KEY — z.ai GLM Coding Plan key
 #
-# Required repo variables:
+# Repo variables (all optional; defaults shown):
 #   DOCS_AGENT_GLM_API_BASE      — optional; default https://api.z.ai/api/coding/paas/v4
 #   DOCS_AGENT_GLM_MODEL         — optional; defaults to glm-5.3-flash
 #   DOCS_AGENT_GLM_MAX_TOKENS    — defaults to 49152
@@ -99,7 +99,7 @@ jobs:
           fi
 
   hosted:
-    name: hosted (GLM 5.3 Flash — drafts doc update)
+    name: hosted (GLM 5.2 — drafts doc update)
     needs: detect
     if: needs.detect.outputs.needs_docs == 'true'
     runs-on: ubuntu-latest

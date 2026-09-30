@@ -898,6 +898,10 @@ test("stream classification: quota words in reasoning and explicit error objects
     ["explicit non-quota error object without finish", 'data: {"error":{"code":"1210","message":"invalid parameter"}}\n\n', false],
     ["explicit 401 error object without finish", 'data: {"error":{"status":401,"message":"invalid key"}}\n\n', true],
     ["explicit 503 error object without finish", 'data: {"error":{"code":503,"message":"overloaded"}}\n\n', true],
+    ["plain JSON deterministic error body", '{"error":{"status":400,"message":"bad request"}}', false],
+    ["plain JSON quota error body", '{"error":{"code":"1113","message":"Insufficient balance"}}', true],
+    ["eligible error after reasoning with DONE", 'data: {"choices":[{"delta":{"reasoning_content":"thinking"},"finish_reason":null}]}\n\ndata: {"error":{"status":503,"message":"overloaded"}}\n\ndata: [DONE]\n', true],
+    ["deterministic error after content with DONE", 'data: {"choices":[{"delta":{"content":"partial"},"finish_reason":null}]}\n\ndata: {"error":{"status":400,"message":"bad"}}\n\ndata: [DONE]\n', false],
     ["quota word in content with deterministic error", 'data: {"choices":[{"delta":{"content":"quota"},"finish_reason":null}]}\n\ndata: {"error":{"status":400,"message":"bad request"}}\n\n', false],
     ["explicit quota error object without finish", 'data: {"error":{"code":"1113","message":"Insufficient balance"}}\n\n', true],
     ["dropped stream without error object", 'data: {"choices":[{"delta":{"content":"partial"},"finish_reason":null}]}\n\n', true],
@@ -929,4 +933,14 @@ test("an invalid primary API base is a configuration error, not a fallback trigg
   const result = await runApiBackend("glm", { type: "api", apiBase: "not a url", model: "m", apiKey: "k-p8", maxTokens: 100, reasoningEffort: "high", fallbackApiBase: "http://127.0.0.1:9/fallback", fallbackModel: "fm", fallbackApiKey: "k-f8" }, "prompt", 1000);
   assert.notEqual(result.code, 0);
   assert.match(result.stderr, /invalid API base/);
+});
+
+test("workflow template keeps the stable hosted check name and token split", () => {
+  const template = readFileSync(path.resolve(testDir, "..", "docs-agent.yml"), "utf8");
+  assert.match(template, /name:\s+hosted \(GLM 5\.2 — drafts doc update\)/);
+  assert.match(template, /DOCS_AGENT_SOURCE_TOKEN:\s*\$\{\{\s*github\.token\s*\}\}/);
+  assert.match(template, /GH_TOKEN:\s*\$\{\{\s*secrets\.DOCS_REPO_PAT\s*\}\}/);
+  assert.match(template, /GLM_API_KEY:\s*\$\{\{\s*secrets\.ZAI_API_KEY\s*\}\}/);
+  assert.match(template, /GLM_FALLBACK_API_KEY:\s*\$\{\{\s*secrets\.OPENROUTER_API_KEY\s*\}\}/);
+  assert.doesNotMatch(template, /secrets\.GLM_API_KEY|CLOUDFLARE_WORKERS_AI_TOKEN|CLOUDFLARE_ACCOUNT_ID|@cf\//);
 });
