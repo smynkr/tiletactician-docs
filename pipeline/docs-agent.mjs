@@ -922,7 +922,7 @@ export async function runApiBackend(backendName, backend, prompt, timeoutMs) {
       ...backend,
       apiBase: backend.fallbackApiBase,
       model: backend.fallbackModel,
-      apiKey: backend.fallbackApiKey,
+      apiKey: (backend.fallbackApiKey),
       reasoningEffort: fallbackReasoningEffort(backend.fallbackApiBase, backend.reasoningEffort),
     };
     log(`API backend "glm" primary ${apiHost(backend.apiBase)} failed (${result.timedOut ? "timeout" : result.code > 0 ? `HTTP ${result.code}` : "transport, quota, or incomplete stream"}); falling back to ${apiHost(serving.apiBase)} model=${serving.model} reasoning_effort=${serving.reasoningEffort}`);
