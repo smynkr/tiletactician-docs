@@ -796,7 +796,7 @@ const API_SERVING = new Map();
 // Explicit quota/usage-limit signals only (z.ai 1113/1308/1310, insufficient
 // balance/credits, usage limit, quota exceeded/exhausted) — never a bare "quota".
 const QUOTA_SIGNAL = /\b(1113|1308|1310)\b|insufficient (balance|credits|quota)|usage limit|quota (exceeded|exhausted|limit)|exceeded (your |the )?(current )?quota/i;
-const AUTH_PROVIDER_SIGNAL = /\b(unauthori[sz]ed|authentication|invalid[ _-]?api[ _-]?key|token expired|forbidden)\b/i;
+const AUTH_PROVIDER_SIGNAL = /\b(unauthori[sz]ed|authentication|invalid[ _-]?api[ _-]?key|token expired|forbidden)/i;
 const TRANSIENT_PROVIDER_SIGNAL = /\b(timeout|timed out|overloaded|unavailable|internal server error|server error|rate limit)\b/i;
 
 // Classify explicit provider error objects carried in SSE `data:` events. Only
@@ -896,10 +896,24 @@ async function requestApiBackend(backendName, backend, prompt, timeoutMs, deadli
       let sseText = "";
       const decoder = new TextDecoder();
       const reader = res.body.getReader();
-      for (;;) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        sseText += decoder.decode(value, { stream: true });
+      try {
+        for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          sseText += decoder.decode(value, { stream: true });
+        }
+      } catch (readErr) {
+        // A disconnect after the provider already reported a terminal outcome
+        // must not be reclassified as a transport failure.
+        const received = classifySseProviderError(sseText);
+        if (received) {
+          return { code: -1, signal: null, stdout: "", stderr: `provider error event in stream: ${redactApiKeys(received.detail, backend).slice(0, 500)}`, timedOut: false, fallbackEligible: received.fallbackEligible };
+        }
+        const partial = parseSSEPayload(sseText);
+        if (partial.finishReason !== null) {
+          return { code: -1, signal: null, stdout: "", stderr: `stream read failed after finish_reason=${partial.finishReason}`, timedOut: false, fallbackEligible: false };
+        }
+        throw readErr;
       }
       sseText += decoder.decode(); // flush a multi-byte char split at stream end
 

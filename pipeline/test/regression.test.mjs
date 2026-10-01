@@ -901,6 +901,7 @@ test("stream classification: quota words in reasoning and explicit error objects
     ["plain JSON deterministic error body", '{"error":{"status":400,"message":"bad request"}}', false],
     ["plain JSON quota error body", '{"error":{"code":"1113","message":"Insufficient balance"}}', true],
     ["status-free auth error object", 'data: {"error":{"code":"1001","type":"authentication_error","message":"Authentication failed"}}\n\n', true],
+    ["snake_case auth type only", 'data: {"error":{"code":"1001","type":"authentication_error","message":"denied"}}\n\n', true],
     ["bare quota word in deterministic error object", 'data: {"error":{"code":"1210","message":"parameter quota_tier is invalid"}}\n\n', false],
     ["eligible error after reasoning with DONE", 'data: {"choices":[{"delta":{"reasoning_content":"thinking"},"finish_reason":null}]}\n\ndata: {"error":{"status":503,"message":"overloaded"}}\n\ndata: [DONE]\n', true],
     ["deterministic error after content with DONE", 'data: {"choices":[{"delta":{"content":"partial"},"finish_reason":null}]}\n\ndata: {"error":{"status":400,"message":"bad"}}\n\ndata: [DONE]\n', false],
@@ -952,7 +953,7 @@ test("provider error detail is redacted before truncation", async () => {
   const key = "k-" + "z".repeat(600);
   const server = createHttpServer((req, res) => { req.resume(); req.on("end", () => {
     res.writeHead(200, { "Content-Type": "text/event-stream" });
-    res.end(`data: {"error":{"status":400,"message":"${"x".repeat(480)} ${key}"}}\n\n`);
+    res.end(`data: {"error":{"status":400,"message":"${"x".repeat(470)} ${key}"}}\n\n`);
   }); });
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   try {
@@ -966,4 +967,24 @@ test("a non-http(s) primary API base is a configuration error", async () => {
   const result = await runApiBackend("glm", { type: "api", apiBase: "ftp://example.test/v1", model: "m", apiKey: "k-p7", maxTokens: 100, reasoningEffort: "high", fallbackApiBase: "http://127.0.0.1:9/fallback", fallbackModel: "fm", fallbackApiKey: "k-f7" }, "prompt", 1000);
   assert.notEqual(result.code, 0);
   assert.match(result.stderr, /invalid API base/);
+});
+
+test("a disconnect after a received terminal error is not reclassified as transport", async () => {
+  const { createServer: createHttpServer } = await import("node:http");
+  for (const [body, label] of [['data: {"error":{"status":400,"message":"bad"}}\n\n', "deterministic error"], ['data: {"choices":[{"delta":{"content":"x"},"finish_reason":"length"}]}\n\n', "length"]]) {
+    const paths = [];
+    const server = createHttpServer((req, res) => { req.resume(); req.on("end", () => {
+      paths.push(req.url);
+      res.writeHead(200, { "Content-Type": "text/event-stream" });
+      if (req.url.startsWith("/primary")) { res.write(body); setTimeout(() => res.socket.destroy(), 20); }
+      else res.end('data: {"choices":[{"delta":{"content":"ok"},"finish_reason":"stop"}]}\n\ndata: [DONE]\n');
+    }); });
+    await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+    const base = `http://127.0.0.1:${server.address().port}`;
+    try {
+      const result = await runApiBackend("glm", { type: "api", apiBase: `${base}/primary`, model: "m", apiKey: "k-p6", maxTokens: 100, maxTokensEnv: "X", reasoningEffort: "high", fallbackApiBase: `${base}/fallback`, fallbackModel: "fm", fallbackApiKey: "k-f6" }, "prompt", 2000);
+      assert.notEqual(result.code, 0, label);
+      assert.equal(paths.some((p) => p.startsWith("/fallback")), false, label);
+    } finally { await new Promise((resolve) => server.close(resolve)); }
+  }
 });
