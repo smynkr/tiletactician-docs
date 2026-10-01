@@ -793,7 +793,10 @@ function redactApiKeys(value, backend) {
 }
 
 const API_SERVING = new Map();
-const QUOTA_SIGNAL = /\b(1113|1308|1310)\b|insufficient balance|usage limit|quota/i;
+// Explicit quota/usage-limit signals only (z.ai 1113/1308/1310, insufficient
+// balance/credits, usage limit, quota exceeded/exhausted) — never a bare "quota".
+const QUOTA_SIGNAL = /\b(1113|1308|1310)\b|insufficient (balance|credits|quota)|usage limit|quota (exceeded|exhausted|limit)|exceeded (your |the )?(current )?quota/i;
+const AUTH_PROVIDER_SIGNAL = /\b(unauthori[sz]ed|authentication|invalid[ _-]?api[ _-]?key|token expired|forbidden)\b/i;
 const TRANSIENT_PROVIDER_SIGNAL = /\b(timeout|timed out|overloaded|unavailable|internal server error|server error|rate limit)\b/i;
 
 // Classify explicit provider error objects carried in SSE `data:` events. Only
@@ -815,11 +818,11 @@ export function classifySseProviderError(sseText) {
     if (!error || typeof error !== "object") continue;
     const body = JSON.stringify(error);
     const status = Number(error.status ?? error.http_status ?? error.code);
-    const detail = body.slice(0, 500);
+    // `detail` is the full error object; callers redact before truncating.
     if (Number.isInteger(status) && status >= 400 && status <= 599) {
-      return { fallbackEligible: isFallbackEligibleStatus(status, body), detail };
+      return { fallbackEligible: isFallbackEligibleStatus(status, body), detail: body };
     }
-    return { fallbackEligible: QUOTA_SIGNAL.test(body) || TRANSIENT_PROVIDER_SIGNAL.test(body), detail };
+    return { fallbackEligible: QUOTA_SIGNAL.test(body) || AUTH_PROVIDER_SIGNAL.test(body) || TRANSIENT_PROVIDER_SIGNAL.test(body), detail: body };
   }
   return null;
 }
@@ -855,7 +858,7 @@ async function requestApiBackend(backendName, backend, prompt, timeoutMs, deadli
       stderr: `API backend "${backendName}" exhausted its ${timeoutMs}ms timeout budget`,
       timedOut: true, fallbackEligible: true,
     });
-    try { new URL(backend.apiBase); } catch {
+    try { if (!["http:", "https:"].includes(new URL(backend.apiBase).protocol)) throw new Error("scheme"); } catch {
       return { code: -1, signal: null, stdout: "", stderr: `API backend "${backendName}" has an invalid API base`, timedOut: false, fallbackEligible: false };
     }
     for (let attempt = 0; attempt < requestAttempts; attempt += 1) {
@@ -907,7 +910,7 @@ async function requestApiBackend(backendName, backend, prompt, timeoutMs, deadli
       // fallback eligibility. Content and reasoning text are never inspected.
       const sseProviderError = classifySseProviderError(sseText);
       if (sseProviderError) {
-        return { code: -1, signal: null, stdout: "", stderr: `provider error event in stream: ${redactApiKeys(sseProviderError.detail, backend)}`, timedOut: false, fallbackEligible: sseProviderError.fallbackEligible };
+        return { code: -1, signal: null, stdout: "", stderr: `provider error event in stream: ${redactApiKeys(sseProviderError.detail, backend).slice(0, 500)}`, timedOut: false, fallbackEligible: sseProviderError.fallbackEligible };
       }
       // A stream that ends without a finish_reason AND without [DONE] died
       // mid-generation (gateway drop, aggregator hang-up — documented

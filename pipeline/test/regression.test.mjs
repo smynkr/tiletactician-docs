@@ -754,7 +754,7 @@ test("fallback effort mapping and deterministic status exclusions", () => {
   for (const status of [400, 422]) assert.equal(isFallbackEligibleStatus(status, "quota 1113"), false);
   for (const status of [402, 404, 418]) assert.equal(isFallbackEligibleStatus(status, "quota 1113"), true);
   for (const status of [402, 404, 409, 418]) assert.equal(isFallbackEligibleStatus(status, "failure"), false);
-  for (const body of ["1113", "1308", "1310", "insufficient balance", "usage limit", "quota"]) assert.equal(isFallbackEligibleStatus(200, body), true);
+  for (const body of ["1113", "1308", "1310", "insufficient balance", "usage limit", "quota exceeded"]) assert.equal(isFallbackEligibleStatus(200, body), true);
 });
 
 test("GLM fallback uses one request, pinned effort, and the serving receipt", async (t) => {
@@ -900,6 +900,8 @@ test("stream classification: quota words in reasoning and explicit error objects
     ["explicit 503 error object without finish", 'data: {"error":{"code":503,"message":"overloaded"}}\n\n', true],
     ["plain JSON deterministic error body", '{"error":{"status":400,"message":"bad request"}}', false],
     ["plain JSON quota error body", '{"error":{"code":"1113","message":"Insufficient balance"}}', true],
+    ["status-free auth error object", 'data: {"error":{"code":"1001","type":"authentication_error","message":"Authentication failed"}}\n\n', true],
+    ["bare quota word in deterministic error object", 'data: {"error":{"code":"1210","message":"parameter quota_tier is invalid"}}\n\n', false],
     ["eligible error after reasoning with DONE", 'data: {"choices":[{"delta":{"reasoning_content":"thinking"},"finish_reason":null}]}\n\ndata: {"error":{"status":503,"message":"overloaded"}}\n\ndata: [DONE]\n', true],
     ["deterministic error after content with DONE", 'data: {"choices":[{"delta":{"content":"partial"},"finish_reason":null}]}\n\ndata: {"error":{"status":400,"message":"bad"}}\n\ndata: [DONE]\n', false],
     ["quota word in content with deterministic error", 'data: {"choices":[{"delta":{"content":"quota"},"finish_reason":null}]}\n\ndata: {"error":{"status":400,"message":"bad request"}}\n\n', false],
@@ -924,7 +926,7 @@ test("stream classification: quota words in reasoning and explicit error objects
       assert.equal(paths.some((p) => p.startsWith("/fallback")), expectFallback);
       assert.equal(result.code === 0, expectFallback);
     } finally {
-      server.close();
+      await new Promise((resolve) => server.close(resolve));
     }
   });
 });
@@ -943,4 +945,25 @@ test("workflow template keeps the stable hosted check name and token split", () 
   assert.match(template, /GLM_API_KEY:\s*\$\{\{\s*secrets\.ZAI_API_KEY\s*\}\}/);
   assert.match(template, /GLM_FALLBACK_API_KEY:\s*\$\{\{\s*secrets\.OPENROUTER_API_KEY\s*\}\}/);
   assert.doesNotMatch(template, /secrets\.GLM_API_KEY|CLOUDFLARE_WORKERS_AI_TOKEN|CLOUDFLARE_ACCOUNT_ID|@cf\//);
+});
+
+test("provider error detail is redacted before truncation", async () => {
+  const { createServer: createHttpServer } = await import("node:http");
+  const key = "k-" + "z".repeat(600);
+  const server = createHttpServer((req, res) => { req.resume(); req.on("end", () => {
+    res.writeHead(200, { "Content-Type": "text/event-stream" });
+    res.end(`data: {"error":{"status":400,"message":"${"x".repeat(480)} ${key}"}}\n\n`);
+  }); });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  try {
+    const result = await runApiBackend("glm", { type: "api", apiBase: `http://127.0.0.1:${server.address().port}/v1`, model: "m", apiKey: key, maxTokens: 100, reasoningEffort: "high" }, "prompt", 2000);
+    assert.notEqual(result.code, 0);
+    assert.doesNotMatch(result.stderr, /k-zzzz/);
+  } finally { await new Promise((resolve) => server.close(resolve)); }
+});
+
+test("a non-http(s) primary API base is a configuration error", async () => {
+  const result = await runApiBackend("glm", { type: "api", apiBase: "ftp://example.test/v1", model: "m", apiKey: "k-p7", maxTokens: 100, reasoningEffort: "high", fallbackApiBase: "http://127.0.0.1:9/fallback", fallbackModel: "fm", fallbackApiKey: "k-f7" }, "prompt", 1000);
+  assert.notEqual(result.code, 0);
+  assert.match(result.stderr, /invalid API base/);
 });
