@@ -902,6 +902,8 @@ test("stream classification: quota words in reasoning and explicit error objects
     ["plain JSON quota error body", '{"error":{"code":"1113","message":"Insufficient balance"}}', true],
     ["status-free auth error object", 'data: {"error":{"code":"1001","type":"authentication_error","message":"Authentication failed"}}\n\n', true],
     ["snake_case auth type only", 'data: {"error":{"code":"1001","type":"authentication_error","message":"denied"}}\n\n', true],
+    ["deterministic code with transient-sounding message", 'data: {"error":{"code":"1210","message":"timeout parameter is invalid"}}\n\n', false],
+    ["eligible error alongside length truncation", 'data: {"choices":[{"delta":{"content":"x"},"finish_reason":"length"}]}\n\ndata: {"error":{"status":503,"message":"overloaded"}}\n\n', false],
     ["bare quota word in deterministic error object", 'data: {"error":{"code":"1210","message":"parameter quota_tier is invalid"}}\n\n', false],
     ["eligible error after reasoning with DONE", 'data: {"choices":[{"delta":{"reasoning_content":"thinking"},"finish_reason":null}]}\n\ndata: {"error":{"status":503,"message":"overloaded"}}\n\ndata: [DONE]\n', true],
     ["deterministic error after content with DONE", 'data: {"choices":[{"delta":{"content":"partial"},"finish_reason":null}]}\n\ndata: {"error":{"status":400,"message":"bad"}}\n\ndata: [DONE]\n', false],
@@ -987,4 +989,14 @@ test("a disconnect after a received terminal error is not reclassified as transp
       assert.equal(paths.some((p) => p.startsWith("/fallback")), false, label);
     } finally { await new Promise((resolve) => server.close(resolve)); }
   }
+});
+
+test("credentialed API base and request-construction errors never fall back", async (t) => {
+  const cred = await runApiBackend("glm", { type: "api", apiBase: "http://u:p@127.0.0.1:9/v1", model: "m", apiKey: "k-p5", maxTokens: 100, reasoningEffort: "high", fallbackApiBase: "http://127.0.0.1:9/fallback", fallbackModel: "fm", fallbackApiKey: "k-f5" }, "prompt", 1000);
+  assert.match(cred.stderr, /invalid API base/);
+  let calls = 0;
+  t.mock.method(globalThis, "fetch", async () => { calls++; throw new TypeError("Request cannot be constructed from a URL that includes credentials"); });
+  const result = await runApiBackend("glm", { type: "api", apiBase: "https://primary.test/v1", model: "m", apiKey: "k-p5", maxTokens: 100, reasoningEffort: "high", fallbackApiBase: "https://fallback.test/v1", fallbackModel: "fm", fallbackApiKey: "k-f5" }, "prompt", 1000);
+  assert.notEqual(result.code, 0);
+  assert.equal(calls, 1);
 });

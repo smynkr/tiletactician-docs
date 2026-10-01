@@ -796,8 +796,10 @@ const API_SERVING = new Map();
 // Explicit quota/usage-limit signals only (z.ai 1113/1308/1310, insufficient
 // balance/credits, usage limit, quota exceeded/exhausted) — never a bare "quota".
 const QUOTA_SIGNAL = /\b(1113|1308|1310)\b|insufficient (balance|credits|quota)|usage limit|quota (exceeded|exhausted|limit)|exceeded (your |the )?(current )?quota/i;
-const AUTH_PROVIDER_SIGNAL = /\b(unauthori[sz]ed|authentication|invalid[ _-]?api[ _-]?key|token expired|forbidden)/i;
-const TRANSIENT_PROVIDER_SIGNAL = /\b(timeout|timed out|overloaded|unavailable|internal server error|server error|rate limit)\b/i;
+// Structured (non-HTTP) provider error fields only — never free-text messages.
+// z.ai codes (inferred from z.ai docs): 1000-1004 auth, 1302/1303/1305 rate/overload.
+const ELIGIBLE_PROVIDER_CODES = new Set(["1000", "1001", "1002", "1003", "1004", "1302", "1303", "1305"]);
+const ELIGIBLE_PROVIDER_TYPE = /auth|permission|rate[ _-]?limit|overload|server[ _-]?error|timeout|unavailable/i;
 
 // Classify explicit provider error objects carried in SSE `data:` events. Only
 // the parsed error object is inspected, never model content or reasoning text.
@@ -822,7 +824,9 @@ export function classifySseProviderError(sseText) {
     if (Number.isInteger(status) && status >= 400 && status <= 599) {
       return { fallbackEligible: isFallbackEligibleStatus(status, body), detail: body };
     }
-    return { fallbackEligible: QUOTA_SIGNAL.test(body) || AUTH_PROVIDER_SIGNAL.test(body) || TRANSIENT_PROVIDER_SIGNAL.test(body), detail: body };
+    const code = String(error.code ?? "");
+    const eligible = QUOTA_SIGNAL.test(code) || ELIGIBLE_PROVIDER_CODES.has(code) || ELIGIBLE_PROVIDER_TYPE.test(String(error.type ?? "")) || QUOTA_SIGNAL.test(String(error.message ?? ""));
+    return { fallbackEligible: eligible, detail: body };
   }
   return null;
 }
@@ -858,7 +862,7 @@ async function requestApiBackend(backendName, backend, prompt, timeoutMs, deadli
       stderr: `API backend "${backendName}" exhausted its ${timeoutMs}ms timeout budget`,
       timedOut: true, fallbackEligible: true,
     });
-    try { if (!["http:", "https:"].includes(new URL(backend.apiBase).protocol)) throw new Error("scheme"); } catch {
+    try { const u = new URL(backend.apiBase); if (!["http:", "https:"].includes(u.protocol) || u.username || u.password) throw new Error("base"); } catch {
       return { code: -1, signal: null, stdout: "", stderr: `API backend "${backendName}" has an invalid API base`, timedOut: false, fallbackEligible: false };
     }
     for (let attempt = 0; attempt < requestAttempts; attempt += 1) {
@@ -907,7 +911,7 @@ async function requestApiBackend(backendName, backend, prompt, timeoutMs, deadli
         // must not be reclassified as a transport failure.
         const received = classifySseProviderError(sseText);
         if (received) {
-          return { code: -1, signal: null, stdout: "", stderr: `provider error event in stream: ${redactApiKeys(received.detail, backend).slice(0, 500)}`, timedOut: false, fallbackEligible: received.fallbackEligible };
+          return { code: -1, signal: null, stdout: "", stderr: `provider error event in stream: ${redactApiKeys(received.detail, backend).slice(0, 500)}`, timedOut: false, fallbackEligible: received.fallbackEligible && parseSSEPayload(sseText).finishReason !== "length" };
         }
         const partial = parseSSEPayload(sseText);
         if (partial.finishReason !== null) {
@@ -924,7 +928,7 @@ async function requestApiBackend(backendName, backend, prompt, timeoutMs, deadli
       // fallback eligibility. Content and reasoning text are never inspected.
       const sseProviderError = classifySseProviderError(sseText);
       if (sseProviderError) {
-        return { code: -1, signal: null, stdout: "", stderr: `provider error event in stream: ${redactApiKeys(sseProviderError.detail, backend).slice(0, 500)}`, timedOut: false, fallbackEligible: sseProviderError.fallbackEligible };
+        return { code: -1, signal: null, stdout: "", stderr: `provider error event in stream: ${redactApiKeys(sseProviderError.detail, backend).slice(0, 500)}`, timedOut: false, fallbackEligible: sseProviderError.fallbackEligible && finishReason !== "length" };
       }
       // A stream that ends without a finish_reason AND without [DONE] died
       // mid-generation (gateway drop, aggregator hang-up — documented
@@ -972,7 +976,7 @@ async function requestApiBackend(backendName, backend, prompt, timeoutMs, deadli
     }
   } catch (err) {
     const timedOut = err.name === "TimeoutError" || err.name === "AbortError";
-    return { code: -1, signal: null, stdout: "", stderr: `fetch error: ${redactApiKeys(err.message, backend)}`, timedOut, fallbackEligible: timedOut || err instanceof TypeError };
+    return { code: -1, signal: null, stdout: "", stderr: `fetch error: ${redactApiKeys(err.message, backend)}`, timedOut, fallbackEligible: timedOut || (err instanceof TypeError && !(err.cause === undefined && /cannot be constructed|invalid (header|url)/i.test(err.message))) };
   }
 
 }
