@@ -795,7 +795,19 @@ function redactApiKeys(value, backend) {
 const API_SERVING = new Map();
 // Explicit quota/usage-limit signals only (z.ai 1113/1308/1310, insufficient
 // balance/credits, usage limit, quota exceeded/exhausted) — never a bare "quota".
-const QUOTA_SIGNAL = /\b(1113|1308|1310)\b|insufficient (balance|credits|quota)|usage limit|quota (exceeded|exhausted|limit)|exceeded (your |the )?(current )?quota/i;
+const QUOTA_CODES = new Set(["1113", "1308", "1310"]);
+const QUOTA_PHRASE = /insufficient (balance|credits|quota)|usage limit|quota (exceeded|exhausted|limit)|exceeded (your |the )?(current )?quota/i;
+// Quota evidence comes from a structured error code or an explicit quota phrase
+// in the error message; bare numbers elsewhere in a body (ids, echoes) never count.
+function quotaSignal(body) {
+  const text = String(body ?? "");
+  try {
+    const parsed = JSON.parse(text);
+    const err = parsed && typeof parsed === "object" ? (parsed.error && typeof parsed.error === "object" ? parsed.error : parsed) : null;
+    if (err) return QUOTA_CODES.has(String(err.code ?? "")) || QUOTA_PHRASE.test(String(err.message ?? ""));
+  } catch { /* not JSON: phrases only */ }
+  return QUOTA_PHRASE.test(text);
+}
 // Structured (non-HTTP) provider error fields only — never free-text messages.
 // z.ai codes (inferred from z.ai docs): 1000-1004 auth, 1302/1303/1305 rate/overload.
 const ELIGIBLE_PROVIDER_CODES = new Set(["1000", "1001", "1002", "1003", "1004", "1302", "1303", "1305"]);
@@ -825,7 +837,7 @@ export function classifySseProviderError(sseText) {
       return { fallbackEligible: isFallbackEligibleStatus(status, body), detail: body };
     }
     const code = String(error.code ?? "");
-    const eligible = QUOTA_SIGNAL.test(code) || ELIGIBLE_PROVIDER_CODES.has(code) || ELIGIBLE_PROVIDER_TYPE.test(String(error.type ?? "")) || QUOTA_SIGNAL.test(String(error.message ?? ""));
+    const eligible = QUOTA_CODES.has(code) || ELIGIBLE_PROVIDER_CODES.has(code) || ELIGIBLE_PROVIDER_TYPE.test(String(error.type ?? "")) || QUOTA_PHRASE.test(String(error.message ?? ""));
     return { fallbackEligible: eligible, detail: body };
   }
   return null;
@@ -838,7 +850,7 @@ export function isFallbackEligibleStatus(status, body) {
   // never fall back.
   if ([401, 403, 408, 429].includes(status) || status >= 500) return true;
   if (status === 400 || status === 422) return false;
-  return QUOTA_SIGNAL.test(String(body));
+  return quotaSignal(body);
 }
 
 
@@ -909,15 +921,20 @@ async function requestApiBackend(backendName, backend, prompt, timeoutMs, deadli
       } catch (readErr) {
         // A disconnect after the provider already reported a terminal outcome
         // must not be reclassified as a transport failure.
+        const partial = parseSSEPayload(sseText);
         const received = classifySseProviderError(sseText);
         if (received) {
-          return { code: -1, signal: null, stdout: "", stderr: `provider error event in stream: ${redactApiKeys(received.detail, backend).slice(0, 500)}`, timedOut: false, fallbackEligible: received.fallbackEligible && parseSSEPayload(sseText).finishReason !== "length" };
+          return { code: -1, signal: null, stdout: "", stderr: `provider error event in stream: ${redactApiKeys(received.detail, backend).slice(0, 500)}`, timedOut: false, fallbackEligible: received.fallbackEligible && (partial.finishReason === null || partial.finishReason === "stop") };
         }
-        const partial = parseSSEPayload(sseText);
-        if (partial.finishReason !== null) {
+        if (partial.finishReason !== null && partial.finishReason !== "stop") {
           return { code: -1, signal: null, stdout: "", stderr: `stream read failed after finish_reason=${partial.finishReason}`, timedOut: false, fallbackEligible: false };
         }
-        throw readErr;
+        if (partial.finishReason === null) {
+          const timedOut = readErr?.name === "TimeoutError" || readErr?.name === "AbortError";
+          return { code: -1, signal: null, stdout: "", stderr: `stream read failed: ${redactApiKeys(readErr?.message ?? String(readErr), backend)}`, timedOut, fallbackEligible: true };
+        }
+        // finish_reason=stop already arrived: the response is complete, so a
+        // trailing disconnect is ignored and the output is processed normally.
       }
       sseText += decoder.decode(); // flush a multi-byte char split at stream end
 
@@ -928,7 +945,7 @@ async function requestApiBackend(backendName, backend, prompt, timeoutMs, deadli
       // fallback eligibility. Content and reasoning text are never inspected.
       const sseProviderError = classifySseProviderError(sseText);
       if (sseProviderError) {
-        return { code: -1, signal: null, stdout: "", stderr: `provider error event in stream: ${redactApiKeys(sseProviderError.detail, backend).slice(0, 500)}`, timedOut: false, fallbackEligible: sseProviderError.fallbackEligible && finishReason !== "length" };
+        return { code: -1, signal: null, stdout: "", stderr: `provider error event in stream: ${redactApiKeys(sseProviderError.detail, backend).slice(0, 500)}`, timedOut: false, fallbackEligible: sseProviderError.fallbackEligible && (finishReason === null || finishReason === "stop") };
       }
       // A stream that ends without a finish_reason AND without [DONE] died
       // mid-generation (gateway drop, aggregator hang-up — documented

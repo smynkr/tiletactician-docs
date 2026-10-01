@@ -752,9 +752,9 @@ test("fallback effort mapping and deterministic status exclusions", () => {
   assert.equal(fallbackReasoningEffort("https://openrouter.ai/api/v1", "high"), "high");
   for (const status of [401, 403, 408, 429, 500, 503, 599]) assert.equal(isFallbackEligibleStatus(status, "failure"), true);
   for (const status of [400, 422]) assert.equal(isFallbackEligibleStatus(status, "quota 1113"), false);
-  for (const status of [402, 404, 418]) assert.equal(isFallbackEligibleStatus(status, "quota 1113"), true);
+  for (const status of [402, 404, 418]) assert.equal(isFallbackEligibleStatus(status, '{"error":{"code":"1113","message":"quota exceeded"}}'), true);
   for (const status of [402, 404, 409, 418]) assert.equal(isFallbackEligibleStatus(status, "failure"), false);
-  for (const body of ["1113", "1308", "1310", "insufficient balance", "usage limit", "quota exceeded"]) assert.equal(isFallbackEligibleStatus(200, body), true);
+  for (const body of ['{"error":{"code":"1113"}}', '{"error":{"code":"1308"}}', '{"error":{"code":"1310"}}', "insufficient balance", "usage limit", "quota exceeded"]) assert.equal(isFallbackEligibleStatus(200, body), true);
 });
 
 test("GLM fallback uses one request, pinned effort, and the serving receipt", async (t) => {
@@ -904,6 +904,7 @@ test("stream classification: quota words in reasoning and explicit error objects
     ["snake_case auth type only", 'data: {"error":{"code":"1001","type":"authentication_error","message":"denied"}}\n\n', true],
     ["deterministic code with transient-sounding message", 'data: {"error":{"code":"1210","message":"timeout parameter is invalid"}}\n\n', false],
     ["eligible error alongside length truncation", 'data: {"choices":[{"delta":{"content":"x"},"finish_reason":"length"}]}\n\ndata: {"error":{"status":503,"message":"overloaded"}}\n\n', false],
+    ["eligible error alongside content_filter", 'data: {"choices":[{"delta":{"content":"x"},"finish_reason":"content_filter"}]}\n\ndata: {"error":{"status":503,"message":"overloaded"}}\n\n', false],
     ["bare quota word in deterministic error object", 'data: {"error":{"code":"1210","message":"parameter quota_tier is invalid"}}\n\n', false],
     ["eligible error after reasoning with DONE", 'data: {"choices":[{"delta":{"reasoning_content":"thinking"},"finish_reason":null}]}\n\ndata: {"error":{"status":503,"message":"overloaded"}}\n\ndata: [DONE]\n', true],
     ["deterministic error after content with DONE", 'data: {"choices":[{"delta":{"content":"partial"},"finish_reason":null}]}\n\ndata: {"error":{"status":400,"message":"bad"}}\n\ndata: [DONE]\n', false],
@@ -999,4 +1000,26 @@ test("credentialed API base and request-construction errors never fall back", as
   const result = await runApiBackend("glm", { type: "api", apiBase: "https://primary.test/v1", model: "m", apiKey: "k-p5", maxTokens: 100, reasoningEffort: "high", fallbackApiBase: "https://fallback.test/v1", fallbackModel: "fm", fallbackApiKey: "k-f5" }, "prompt", 1000);
   assert.notEqual(result.code, 0);
   assert.equal(calls, 1);
+});
+
+test("quota evidence is structured: echoed ids never count, codes and phrases do", () => {
+  assert.equal(isFallbackEligibleStatus(404, '{"error":{"code":"model_not_found","message":"request req-1113 failed"}}'), false);
+  assert.equal(isFallbackEligibleStatus(402, '{"error":{"code":"1113","message":"x"}}'), true);
+  assert.equal(isFallbackEligibleStatus(402, '{"error":{"message":"Insufficient balance"}}'), true);
+  assert.equal(isFallbackEligibleStatus(404, "id 1113 not found"), false);
+});
+
+test("a disconnect after finish_reason=stop keeps the complete response", async () => {
+  const { createServer: createHttpServer } = await import("node:http");
+  const server = createHttpServer((req, res) => { req.resume(); req.on("end", () => {
+    res.writeHead(200, { "Content-Type": "text/event-stream" });
+    res.write('data: {"choices":[{"delta":{"content":"complete answer"},"finish_reason":"stop"}]}\n\n');
+    setTimeout(() => res.socket.destroy(), 20);
+  }); });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  try {
+    const result = await runApiBackend("glm", { type: "api", apiBase: `http://127.0.0.1:${server.address().port}/v1`, model: "m", apiKey: "k-p4", maxTokens: 100, maxTokensEnv: "X", reasoningEffort: "high" }, "prompt", 2000);
+    assert.equal(result.code, 0);
+    assert.equal(result.stdout, "complete answer");
+  } finally { await new Promise((resolve) => server.close(resolve)); }
 });
