@@ -1,14 +1,49 @@
 ---
 title: Durable ledger
 category: current-state
-updated: 2026-08-11
+updated: 2026-10-09
 summary: Dated durable facts and their source anchors
 nav_order: 130
-sources: [".codex/harness-memory.json", "README.md", "package.json", "next.config.mjs", "docs.json", "_migration/tools/lib/shared.mjs", "components/brand/products.ts", "app/global.css", "public/logo.svg"]
+sources: [".codex/harness-memory.json", "README.md", "package.json", "next.config.mjs", "docs.json", "_migration/tools/lib/shared.mjs", "components/brand/products.ts", "app/global.css", "public/logo.svg", "tiletactician/index.mdx", "tiletactician/getting-started.mdx", "tiletactician/board-scanning.mdx", "tiletactician/rack-analysis.mdx", "tiletactician/settings-subscriptions.mdx", "tiletactician/share-extension.mdx", "tiletactician/faq.mdx"]
 ---
 
 # Durable ledger
 
+## 2026-10-09 — TileTactician standalone guide alignment
+
+The standalone overview, getting-started, board-scanning, rack-analysis,
+settings-subscriptions, share-extension, and FAQ pages were aligned to the
+product source at [Crossplay-Pro
+`14d970010d1c488d2d5fb98b8fcd4919b318565d`](https://github.com/smynkr/Crossplay-Pro/tree/14d970010d1c488d2d5fb98b8fcd4919b318565d).
+The public browser solver at
+[`tiletactician.com/solver`](https://tiletactician.com/solver/) remains a
+separate live surface from the local mobile solver; neither the App Store URL's
+dated 404 observation nor the repository's missing storefront metadata proves
+that the mobile app is unavailable.
+
+- The native solver returns at most 100 unique placements after the search
+  completes, sorted by score and then word
+  ([solver implementation](https://github.com/smynkr/Crossplay-Pro/blob/14d970010d1c488d2d5fb98b8fcd4919b318565d/src/engine/solver.ts#L327-L354)).
+- Settings labels the active list NWL (NASPA) and shows 172,000+ words, but the
+  source does not pin the exact shipped edition or licensing provenance
+  ([Settings label](https://github.com/smynkr/Crossplay-Pro/blob/14d970010d1c488d2d5fb98b8fcd4919b318565d/app/settings.tsx#L218-L224);
+  [README asset guidance](https://github.com/smynkr/Crossplay-Pro/blob/14d970010d1c488d2d5fb98b8fcd4919b318565d/README.md#L90-L105)).
+- Board images travel through authenticated server/provider paths. The app
+  Settings statement that images are never stored remains a product-policy
+  statement; the inspected code does not prove provider or infrastructure
+  retention
+  ([OCR path](https://github.com/smynkr/Crossplay-Pro/blob/14d970010d1c488d2d5fb98b8fcd4919b318565d/src/utils/ocr.ts#L1300-L1535);
+  [proxy](https://github.com/smynkr/Crossplay-Pro/blob/14d970010d1c488d2d5fb98b8fcd4919b318565d/src/lib/aiProxy.ts#L1-L139)).
+  The existing standalone privacy page remains the sole privacy-policy
+  surface; no duplicate policy was added.
+- The App Store URL in the repository
+  ([source](https://github.com/smynkr/Crossplay-Pro/blob/14d970010d1c488d2d5fb98b8fcd4919b318565d/web-solver/src/config.ts#L9-L10))
+  returned 404 during the dated 2026-10-09 audit. Recheck the current
+  storefront and this URL before making a current-availability claim.
+
+These are source-alignment and scope clarifications, not a product release;
+the product changelog remains unchanged. [[current-state]] remains the
+repository topology summary.
 
 ## 2026-08-11 — Harness-memory conformance (audit FAIL → PASS)
 

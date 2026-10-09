@@ -1,15 +1,20 @@
 ---
 title: Getting started
-description: Install TileTactician, enter your first board, and run your first
-  analysis in under two minutes.
+description: Use TileTactician's public browser solver or set up the Expo app
+  for development, then review the ranked results.
 ---
 
 import { Grid2x2, ScanLine, Trophy } from 'lucide-react';
 
-## Install
+## Where to start
 
-TileTactician is an Expo / React Native app. Install it on your iOS device
-from the App Store, or run it locally for development:
+The public browser solver is available at
+[tiletactician.com/solver](https://tiletactician.com/solver/). It accepts a
+board screenshot or manual entry and lets you review the board before solving.
+This is separate from the native mobile app.
+
+The app repository is an Expo / React Native project. Its README documents
+this local development setup:
 
 ```
 git clone https://github.com/smynkr/Crossplay-Pro.git
@@ -18,7 +23,9 @@ npm install
 npx expo start
 ```
 
-Scan the QR code with Expo Go (Android) or the Camera app (iOS) to launch.
+These commands launch a development build; they are not consumer installation
+instructions. The App Store URL referenced by the product repository returned
+404 on 2026-10-09, so a current iOS install listing is not verified here.
 
 ## Your first analysis
 
@@ -34,9 +41,10 @@ Scan the QR code with Expo Go (Android) or the Camera app (iOS) to launch.
 
 5. Tap **Analyze Board**.
 
-The solver begins searching immediately. Results stream in as they are found —
-the top play appears within milliseconds on a mid-game board, and the full
-ranked list completes in under 500 ms on Apple Silicon.
+The mobile solver searches locally and shows results after the search
+completes; it does not stream partial placements. The solver returns at most
+100 unique placements, ordered by score and then word, so this is a capped
+result set rather than a complete list of every legal play.
 
 ## What the results show
 
@@ -50,8 +58,8 @@ Each result row displays:
 
 - **Cross-words** — any secondary words formed perpendicular to the play
 
-Results are sorted by score descending. Tap any row to preview the placement
-on the board.
+Results can be sorted by **Score**, **Length**, or **A–Z**. Sorting applies to
+the returned set of up to 100 placements. Tap any row to preview it on the board.
 
 ## Next steps
 
@@ -63,13 +71,13 @@ on the board.
 
 <ProcessFlow
   accent="#F59E0B"
-  caption="From install to ranked results: the app's analysis workflow — install, enter the board, add your rack, analyze, and review."
+  caption="For a mobile development build: enter the board, add your rack, wait for the local search to finish, and review the returned placements."
   steps={[
-  { title: "Install", description: "Get TileTactician from the App Store, or run the Expo app locally." },
-  { title: "Enter the board", description: "Place tiles on the 15×15 grid to match the current game state, or scan it." },
+  { title: "Open the browser solver or development build", description: "Use the public web solver, or launch the Expo app from its repository." },
+  { title: "Enter the board", description: "Place tiles on the 15×15 grid to match the current game state, or scan it in the mobile app." },
   { title: "Add your rack", description: "Enter your tiles in the rack bar at the bottom." },
-  { title: "Analyze", description: "Tap Analyze Board — results stream in as the solver searches." },
-  { title: "Review results", description: "Tap any ranked play to preview its placement on the board." },
+  { title: "Analyze", description: "Run the solver; the mobile app displays results after the search completes." },
+  { title: "Review results", description: "Inspect the returned set of up to 100 placements and preview one on the board." },
 ]}
 />
 

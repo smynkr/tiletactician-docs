@@ -5,21 +5,23 @@ description: "Import a board from a photo or screenshot using TileTactician's se
 
 ## How it works
 
-TileTactician can read a Scrabble or Crossplay board from a photo or
-screenshot. Tap **Scan Board** on the home screen, and the app uploads the
-image through its authenticated server proxy to Google Cloud Vision's
-`DOCUMENT_TEXT_DETECTION` service. The OCR pipeline uses the Vision result to
-identify tiles, premium-square labels, and grid geometry; additional server-
-proxied AI verification passes can check ambiguous tiles or rack reads.
+The mobile app sends board images through an authenticated server proxy to
+Google Cloud Vision's `DOCUMENT_TEXT_DETECTION` service. The OCR pipeline uses
+the Vision result to identify tiles, premium-square labels, and grid geometry.
+When verification is needed, additional server-proxied AI calls can check
+ambiguous tiles or rack reads.
 
-This recognition is **not on-device**. Settings shows Vision AI and enhanced AI
-as **Server-managed**, and says board images are processed securely and never
-stored. Board scanning therefore requires a signed-in account.
+Scanning is **not on-device**. Settings labels Vision AI and enhanced AI as
+**Server-managed**. The client sends images through a proxy; repository code
+does not establish image-retention behavior at the provider or infrastructure
+level. The app's current Settings text says the images are processed securely
+and **never stored**, but that UI claim cannot be independently verified from
+the available source. Board scanning requires a signed-in account.
 
-Each logical board scan uses one Vision scan credit. Crossplay Pro grants 50
-monthly credits; signed-out users cannot scan, and users without a balance can
-buy packs from **Settings**. Pack credits do not expire. The balance is checked
-before scanning and refreshed after the request settles.
+Each logical board scan uses one Vision scan credit. A Crossplay Pro
+subscription grants 50 monthly credits; users without a balance can buy packs
+from **Settings**. Pack credits do not expire. The balance is checked before
+scanning and refreshed after the request settles.
 
 ## Scanning from the app
 
@@ -33,10 +35,10 @@ before scanning and refreshed after the request settles.
 5. Review and correct uncertain reads, then confirm the board to load it into
    the editor.
 
-The client sends a shared scan request ID with the Vision operations in one
-logical scan, so rescue and verification calls are accounted for together. If a
-scan is cancelled or fails, the server-side credit flow can settle or refund the
-request according to its authoritative result.
+All Vision and verification calls in a logical scan share its scan request ID
+for server-side accounting. If a scan is cancelled or fails, the credit flow
+settles or refunds the request according to its authoritative result. The
+repository documents accounting behavior, not provider-side image retention.
 
 ## Scanning from the Share Extension
 
