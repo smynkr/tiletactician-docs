@@ -1,28 +1,30 @@
 ---
 title: Share Extension
-description: Analyze a board screenshot shared from any iOS app using the
-  TileTactician Share Extension.
+description: Import a board screenshot with the iOS Share Extension, verify its
+  reads, and then analyze the board.
 ---
 
 ## What it does
 
-The TileTactician Share Extension lets you analyze a Scrabble or Crossplay
-board without manually entering every tile. Share a screenshot from any app —
-Photos, Messages, Safari — and TileTactician reads the board and opens the
-analysis view.
+The iOS Share Extension passes a shared screenshot into TileTactician's
+authenticated scan flow. The app reads the board, opens the editor with
+recognized tiles, and still requires you to verify the board, enter the rack,
+and start analysis. Sharing does not bypass scan credits or make rack entry
+automatic.
 
 ## How to use
 
 1. Take a screenshot of the board (or save a board image).
 
-2. Tap the **Share** button in any iOS app.
+2. Tap the **Share** button in an iOS app and choose **TileTactician** from the
+   share sheet.
 
-3. Scroll the share sheet and tap **TileTactician**.
+3. The extension passes the image to TileTactician, which reads the board and
+   opens the editor with recognized tiles prefilled.
 
-4. The extension reads the board and opens TileTactician with the tiles
-   pre-filled.
+4. Verify or correct the recognized board cells and enter your rack manually.
 
-5. Verify the board, enter your rack, and tap **Analyze Board**.
+5. Tap **Analyze Board** to run the solver.
 
 ## Enabling the extension
 

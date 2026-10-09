@@ -19,9 +19,13 @@ The board-type selector offers:
 Switching board type resets the board layout, so choose the format before
 entering or scanning a position.
 
-Settings reports **NWL (NASPA)** as the active list and displays **172,000+**
-words. The in-app description calls NWL (North American Word List) the official
-NASPA tournament list and says it is the same list used by NYT Crossplay.
+The Settings screen labels the active list **NWL (NASPA)** and displays
+**172,000+** words. Its helper text describes NWL (North American Word List) as
+the official NASPA tournament list and says it is the same list used by NYT
+Crossplay. The product README separately says the bundled dictionary should be
+TWL06 or SOWPODS/Collins, but does not identify which edition is in the current
+asset. The exact shipped list, version, and licensing provenance are therefore
+unresolved in this repository.
 
 ## AI privacy and server management
 
@@ -30,11 +34,13 @@ Settings shows both services as **Server-managed**. The client sends
 authenticated requests through the app's AI proxy; the proxy keeps the Google
 Vision and OpenAI keys in server-side secrets.
 
-For board scanning, the OCR pipeline sends the image to the server proxy's
-Google Cloud Vision `DOCUMENT_TEXT_DETECTION` request. Depending on the scan
-mode and verification pass, the server-proxied pipeline can also use AI checks
-for ambiguous tiles or rack reads. The app's Settings privacy copy says board
-images are processed securely and **never stored**.
+For board scanning, the OCR pipeline sends the image through the server proxy
+to Google Cloud Vision. Depending on the scan path, it can also make
+server-proxied AI verification calls. The Settings screen says board images
+are processed securely and **never stored**; the repository shows provider
+requests but does not establish the provider's or infrastructure's retention
+behavior. Do not treat the app's UI statement as independently verified by
+this code.
 
 AI features require an account session. If the client has no authenticated
 session, the proxy rejects the request instead of treating the public project
@@ -84,8 +90,8 @@ or refunds one credit for a logical board-scan request. All Vision calls in one
 logical scan share that request's credit.
 
 Settings displays your current combined scan balance. If it is zero, board
-scanning is gated until you subscribe or buy a pack. Rack scans are separate
-and remain free with ads.
+scanning is gated until you subscribe or buy a pack. Rack scans use a separate
+scan flow.
 
 For users without a subscription, the Settings pack cards advertise:
 

@@ -8,22 +8,28 @@ description: "Common questions and fixes for TileTactician."
 
 ### Is TileTactician free?
 
-TileTactician is free to install and analyze. Board scanning runs on Vision
-scan credits: Crossplay Pro includes 50 credits each month, and you can buy
-additional credit packs in the app (Settings → Crossplay Pro) — packs never
-expire. Rack scans are free and ad-supported. A Crossplay Pro subscription —
-$2.99/month or $19.99/year — includes 50 board scans per month with your
-membership. See the app for current pricing.
+The public browser solver is available at
+[tiletactician.com/solver](https://tiletactician.com/solver/); check that page
+for its current pricing and limits. The product repository also links to an
+iOS App Store listing, but that URL returned 404 on 2026-10-09, so current iOS
+installation availability is unverified. Once installed, native board analysis
+runs locally and does not use scan credits. Board scans require sign-in and
+Vision credits. Rack scans use a separate flow. See
+[Settings](/tiletactician/settings-subscriptions) for the app's purchase
+options.
 
 ### Does it work offline?
 
-Yes. The solver and dictionary are embedded in the app. Board analysis
-requires no network connection.
+The mobile board solver and bundled word-list asset run locally after the app
+is installed. Board scanning, account sync, and remote word definitions need a
+network connection; the browser solver also requires internet access.
 
 ### What word list does it use?
 
-TileTactician uses the official tournament word list. The dictionary is
-embedded and updated with app releases.
+The Settings screen labels the active list **NWL (NASPA)** and reports
+**172,000+** words. The app repository does not identify the exact edition or
+provenance of its bundled word-list asset, so that label does not establish a
+specific current tournament-list version.
 
 ### Does it support Words With Friends?
 
@@ -35,17 +41,18 @@ distribution.
 
 ### Why are some plays missing from the results?
 
-The solver finds every legal placement from your current rack. If a play is
-missing:
+The native solver returns at most 100 unique placements, ordered by score and
+then word. A legal play can be absent because it falls outside that cap; its
+absence from the returned list does not prove that the play is illegal. For
+possible board or rack-entry mistakes:
 
 - **Check the board.** A missing or misplaced tile changes which words are
-formable. See [Board entry](/tiletactician/board-entry).
+  formable. See [Board entry](/tiletactician/board-entry).
 
 - **Check your rack.** Make sure the rack matches your actual tiles exactly,
-including blanks.
+  including blanks.
 
-- **Check blanks.** A blank entered as a fixed letter won't be treated as a
-wildcard.
+- **Check blanks.** A blank entered as a fixed letter is not a wildcard.
 
 ### Why is the score different from what I calculated?
 
@@ -59,15 +66,15 @@ Premium squares are the most common cause. Verify that:
 
 ### The analysis is slow
 
-On modern devices (Apple M-series, A15+), a full mid-game analysis completes
-in under 500 ms. If analysis is noticeably slow:
+The product README lists a sub-500 ms mid-game benchmark on Apple Silicon; that
+is a development-machine benchmark, not a mobile-device performance guarantee.
 
-- Close background apps to free memory
+- Close background apps to free memory.
 
 - Ensure the board has no empty interior gaps (holes between tiles), which
-increase the search space
+  increase the search space.
 
-- Restart the app if the solver appears stuck
+- Restart the app if the solver appears stuck.
 
 ## Share Extension
 

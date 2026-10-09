@@ -1,32 +1,37 @@
 ---
 title: TileTactician
-description: TileTactician Scrabble and Crossplay board analysis — find every
-  legal play, ranked by score, in real time.
+description: "TileTactician board analysis for Scrabble and NYT Crossplay:
+  offline mobile solving, scan credits, and a separate browser solver."
 ---
 
 import { CircleHelp, Flag, Grid2x2, History, Rocket, ScanLine, Share2, ShoppingBag, Trophy } from 'lucide-react';
 
-TileTactician (CrossPlayer Pro) is a Scrabble and NYT Crossplay board
-analysis app: enter the board, enter your rack, and every legal play appears
-ranked by score in real time. The solver streams results as it searches — the
-top play lands within milliseconds on a mid-game board — and the full
-tournament dictionary is embedded, so analysis works fully offline.
+TileTactician (CrossPlayer Pro) provides native Scrabble and NYT Crossplay board
+analysis with a bundled word list. The mobile solver searches locally and
+returns up to 100 highest-scoring unique placements after the search finishes;
+it does not stream partial results. The exact edition and provenance of the
+mobile word-list asset are not identified in the repository.
+
+The browser-based solver is a separate public surface at
+[tiletactician.com/solver](https://tiletactician.com/solver/). Board scanning
+uses an authenticated, credit-gated server service; it is not the offline
+solver.
 
 <ProductPreview
   src="/screenshots/tiletactician.png"
-  alt="TileTactician landing page: board solver with every legal word ranked by score, plus browsable word lists"
+  alt="TileTactician product preview"
   accent="#F59E0B"
-  caption="Know every word. Play the board that wins — the solver ranks every legal placement by score in real time."
+  caption="The mobile app solves locally; its separate board-scanning workflow uses server-managed Vision."
   highlights={[
-  { text: "Enter or scan the board, add your rack, and get every legal play ranked by score.", icon: Grid2x2 },
-  { text: "On-device solver with the embedded tournament dictionary — works offline.", icon: Trophy },
-  { text: "Endgame solver, tile bag tracking, and an iOS Share Extension for screenshots.", icon: ScanLine },
+  { text: "Enter a board and rack, then review up to 100 high-scoring unique placements.", icon: Grid2x2 },
+  { text: "On-device mobile solver with a bundled word list — board analysis works offline.", icon: Trophy },
+  { text: "Board scanning requires sign-in and credits; the iOS Share Extension uses the same scan flow.", icon: ScanLine },
 ]}
 />
 
 <Cards>
   <Card icon={<Rocket />} title="Getting started" href="/tiletactician/getting-started">
-    Install, enter your first board, and run your first analysis in under two minutes.
+    Browser solver and development setup; not an App Store installation guide.
   </Card>
 
   <Card icon={<Grid2x2 />} title="Board entry" href="/tiletactician/board-entry">
@@ -34,7 +39,7 @@ tournament dictionary is embedded, so analysis works fully offline.
   </Card>
 
   <Card icon={<ScanLine />} title="Board scanning" href="/tiletactician/board-scanning">
-    Import a board from a photo or screenshot — no manual entry needed.
+    Scan a board image, review uncertain reads, and enter your rack manually.
   </Card>
 
   <Card icon={<Trophy />} title="Rack analysis" href="/tiletactician/rack-analysis">
@@ -42,15 +47,31 @@ tournament dictionary is embedded, so analysis works fully offline.
   </Card>
 
   <Card icon={<Flag />} title="Endgame analysis" href="/tiletactician/endgame">
-    Perfect-information endgame solving when the bag is empty.
+    Estimate the opponent's rack from unseen tiles; this is a heuristic, not perfect information.
   </Card>
 
   <Card icon={<ShoppingBag />} title="Tile bag & tracking" href="/tiletactician/tile-bag">
     Track remaining tiles and draw probabilities.
   </Card>
 
+  <Card icon={<Rocket />} title="Manual play" href="/tiletactician/game-play">
+    Play a Crossplay game against the computer and review a privacy-safe recap.
+  </Card>
+
+  <Card icon={<ShoppingBag />} title="Boards library" href="/tiletactician/boards-library">
+    Save, reopen, and sync board snapshots.
+  </Card>
+
+  <Card icon={<History />} title="Study mode" href="/tiletactician/study-mode">
+    Practice saved words and track study progress.
+  </Card>
+
+  <Card icon={<CircleHelp />} title="Settings and subscriptions" href="/tiletactician/settings-subscriptions">
+    Review board rules, scan credits, privacy copy, and purchases.
+  </Card>
+
   <Card icon={<Share2 />} title="Share Extension" href="/tiletactician/share-extension">
-    Analyze a board screenshot shared from any iOS app.
+    Import a board screenshot, verify cells, and enter your rack manually.
   </Card>
 
   <Card icon={<CircleHelp />} title="FAQ" href="/tiletactician/faq">

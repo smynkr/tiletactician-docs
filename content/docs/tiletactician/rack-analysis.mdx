@@ -15,7 +15,11 @@ board type:
 3. **Word premiums** — double- and triple-word squares multiply the word total.
 4. **Cross-words** — perpendicular words formed by the placement are scored and
    added.
-5. **Bingo bonus** — using all seven rack tiles adds 50 points.
+5. **Bingo bonus** — the current solver source adds 35 points on Crossplay
+   boards and 50 on Scrabble boards ([scoring code](https://github.com/smynkr/Crossplay-Pro/blob/14d970010d1c488d2d5fb98b8fcd4919b318565d/src/engine/scoring.ts#L146-L148)).
+   The NYT calls using all seven tiles a **sweep** and awards 40 points in
+   Crossplay ([official rules](https://help.nytimes.com/360011158491-New-York-Times-Games/crossplay-app)),
+   so the solver's Crossplay bonus differs from the game's published rule.
 
 A blank is a wildcard: it can represent a letter, but contributes zero tile
 points. The result displays the assigned blank letter and the score breakdown
@@ -23,14 +27,12 @@ for the placement.
 
 ## Play ranking
 
-The results list starts with the highest-scoring placements. When scores tie,
-the solver prefers a play using fewer tiles, then uses alphabetical word order
-for deterministic output. Tap a result to preview its placement on the board;
-tap it again to open the detailed result view.
+The native solver orders placements by score descending, then by word, and
+returns at most 100 unique results. The Results screen can sort that returned
+set by **Score**, **Length**, or **A–Z**. A lower-scoring legal play may be
+outside the 100-result cap and absent from the list.
 
-You can change the results sort to **Score**, **Length**, or **A–Z**. The result
-list also exposes the placement's position, direction, cross-words, and bingo
-indicator when those details apply.
+Tap a result to preview its placement; tap it again to open the detailed view.
 
 ## Rack management
 
@@ -47,16 +49,13 @@ board and selected board type to generate legal placements.
 
 The **Coach** slider has three assistance levels:
 
-| Level      | What the results show                                             |
-| ---------- | ----------------------------------------------------------------- |
-| **Hint**   | Valid play locations are highlighted, but no letters are revealed |
-| **Coach**  | The top 10 placements are available, without scores               |
-| **Expert** | All solver placements are shown with full score information       |
+| Level      | What the results show                                                 |
+| ---------- | --------------------------------------------------------------------- |
+| **Hint**   | Highlights valid play locations without revealing the letters         |
+| **Coach**  | Shows up to 10 placements without their scores                        |
+| **Expert** | Shows the full returned result set (up to 100) with score information |
 
-Use **Hint** to choose a board area yourself, **Coach** to compare a short list
-of candidate words, or **Expert** to inspect the complete ranked output. The
-level changes what the results expose; it does not change the underlying board
-or rack.
+These levels change what the Results screen reveals, not the search itself.
 
 ## Blunder bar
 

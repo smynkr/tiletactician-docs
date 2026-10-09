@@ -1,14 +1,64 @@
 ---
 title: Durable ledger
 category: current-state
-updated: 2026-08-11
+updated: 2026-10-09
 summary: Dated durable facts and their source anchors
 nav_order: 130
-sources: [".codex/harness-memory.json", "README.md", "package.json", "next.config.mjs", "docs.json", "_migration/tools/lib/shared.mjs", "components/brand/products.ts", "app/global.css", "public/logo.svg"]
+sources: [".codex/harness-memory.json", "README.md", "package.json", "next.config.mjs", "docs.json", "_migration/tools/lib/shared.mjs", "components/brand/products.ts", "app/global.css", "public/logo.svg", "tiletactician/index.mdx", "tiletactician/getting-started.mdx", "tiletactician/board-scanning.mdx", "tiletactician/rack-analysis.mdx", "tiletactician/settings-subscriptions.mdx", "tiletactician/share-extension.mdx", "tiletactician/faq.mdx", "tiletactician/privacy.mdx"]
 ---
 
 # Durable ledger
 
+## 2026-10-09 — TileTactician standalone guide alignment
+
+The standalone overview, getting-started, board-scanning, rack-analysis,
+settings-subscriptions, share-extension, and FAQ pages were aligned to the
+product source at [Crossplay-Pro
+`14d970010d1c488d2d5fb98b8fcd4919b318565d`](https://github.com/smynkr/Crossplay-Pro/tree/14d970010d1c488d2d5fb98b8fcd4919b318565d).
+The public browser solver at
+[`tiletactician.com/solver`](https://tiletactician.com/solver/) remains a
+separate live surface from the local mobile solver; neither the App Store URL's
+dated 404 observation nor the repository's missing storefront metadata proves
+that the mobile app is unavailable.
+
+- The native solver returns at most 100 unique placements after the search
+  completes, sorted by score and then word
+  ([solver implementation](https://github.com/smynkr/Crossplay-Pro/blob/14d970010d1c488d2d5fb98b8fcd4919b318565d/src/engine/solver.ts#L327-L354)).
+- Settings labels the active list NWL (NASPA) and shows 172,000+ words, but the
+  source does not pin the exact shipped edition or licensing provenance
+  ([Settings label](https://github.com/smynkr/Crossplay-Pro/blob/14d970010d1c488d2d5fb98b8fcd4919b318565d/app/settings.tsx#L218-L224);
+  [README asset guidance](https://github.com/smynkr/Crossplay-Pro/blob/14d970010d1c488d2d5fb98b8fcd4919b318565d/README.md#L90-L105)).
+- Board images travel through authenticated server/provider paths. The app
+  Settings statement that images are never stored remains a product-policy
+  statement; the inspected code does not prove provider or infrastructure
+  retention
+  ([OCR path](https://github.com/smynkr/Crossplay-Pro/blob/14d970010d1c488d2d5fb98b8fcd4919b318565d/src/utils/ocr.ts#L1300-L1535);
+  [proxy](https://github.com/smynkr/Crossplay-Pro/blob/14d970010d1c488d2d5fb98b8fcd4919b318565d/src/lib/aiProxy.ts#L1-L139)).
+  The existing standalone privacy page remains the sole privacy-policy
+  surface; no duplicate policy was added.
+- The App Store URL in the repository
+  ([source](https://github.com/smynkr/Crossplay-Pro/blob/14d970010d1c488d2d5fb98b8fcd4919b318565d/web-solver/src/config.ts#L9-L10))
+  returned 404 during the dated 2026-10-09 audit. Recheck the current
+  storefront and this URL before making a current-availability claim.
+- The repository's current mobile solver awards 35 points for a seven-tile
+  Crossplay play and 50 on Scrabble boards, while the NYT Help Center calls
+  the Crossplay play a “sweep” worth 40 points. The standalone rack guide now
+  identifies that source/rules discrepancy rather than presenting 35 as the
+  official Crossplay rule
+  ([solver](https://github.com/smynkr/Crossplay-Pro/blob/14d970010d1c488d2d5fb98b8fcd4919b318565d/src/engine/scoring.ts#L146-L148);
+  [NYT rules](https://help.nytimes.com/360011158491-New-York-Times-Games/crossplay-app)).
+- The product source advertises ad-supported rack scans and includes a Google
+  Mobile Ads helper, while the sole standalone privacy page says advertising
+  SDKs are not used. This docs-only audit leaves that policy page unchanged,
+  records the source/policy conflict without deciding what is deployed, and
+  removes ad-support claims from the guide copy
+  ([Settings](https://github.com/smynkr/Crossplay-Pro/blob/14d970010d1c488d2d5fb98b8fcd4919b318565d/app/settings.tsx#L417);
+  [ads helper](https://github.com/smynkr/Crossplay-Pro/blob/14d970010d1c488d2d5fb98b8fcd4919b318565d/src/lib/ads.ts#L1-L8);
+  [privacy page](https://github.com/smynkr/tiletactician-docs/blob/main/tiletactician/privacy.mdx#L8)).
+
+These are source-alignment and scope clarifications, not a product release;
+the product changelog remains unchanged. [[current-state]] remains the
+repository topology summary.
 
 ## 2026-08-11 — Harness-memory conformance (audit FAIL → PASS)
 
