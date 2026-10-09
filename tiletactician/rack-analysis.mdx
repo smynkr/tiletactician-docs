@@ -14,8 +14,11 @@ board type:
 3. **Word premiums** — double- and triple-word squares multiply the word total.
 4. **Cross-words** — perpendicular words formed by the placement are scored and
    added.
-5. **Bingo bonus** — using all seven rack tiles adds 35 points on Crossplay
-   boards and 50 points on Scrabble boards.
+5. **Bingo bonus** — the current solver source adds 35 points on Crossplay
+   boards and 50 on Scrabble boards ([scoring code](https://github.com/smynkr/Crossplay-Pro/blob/14d970010d1c488d2d5fb98b8fcd4919b318565d/src/engine/scoring.ts#L146-L148)).
+   The NYT calls using all seven tiles a **sweep** and awards 40 points in
+   Crossplay ([official rules](https://help.nytimes.com/360011158491-New-York-Times-Games/crossplay-app)),
+   so the solver's Crossplay bonus differs from the game's published rule.
 
 A blank is a wildcard: it can represent a letter, but contributes zero tile
 points. The result displays the assigned blank letter and the score breakdown

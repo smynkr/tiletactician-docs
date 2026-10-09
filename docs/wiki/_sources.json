@@ -51,6 +51,9 @@
       "current-state",
       "ledger"
     ],
+    "tiletactician/privacy.mdx": [
+      "ledger"
+    ],
     "tiletactician/rack-analysis.mdx": [
       "ledger"
     ],
@@ -73,11 +76,12 @@
     "package.json": "9230b84cd0b5d04c0201927e0dae83edd4632b33c2150ac391eb23dab178a281",
     "public/logo.svg": "b8cc7a8106ef2fa193d1bde7e0bb61fe79dfbc6ba623a3b18c4f51e356d1938f",
     "tiletactician/board-scanning.mdx": "155959ac918509f9dd742086d8a499ddd7cbb9b373a7f210217b07adba364d6f",
-    "tiletactician/faq.mdx": "32250f26177fc5e36a33ca36777083697b60b6cca0df24617f4ed7788e7efa92",
+    "tiletactician/faq.mdx": "556682dd1dab04d6fdef8c4c212b3cfc074b272747aa6d1281714940f74e3e9c",
     "tiletactician/getting-started.mdx": "21a883f4a1d0aea0736a91f0c27eec4acea65422caba9d778d3ebe4cf3c2c5cb",
     "tiletactician/index.mdx": "b60572b6f76d2730996af1baab883a29e5b56552b9b425bc7a6f86cae15fb32b",
-    "tiletactician/rack-analysis.mdx": "e03e6d46c2eb5badb422b4dd29eb1c8f26518e63be0caaab7672eeab4367ee93",
-    "tiletactician/settings-subscriptions.mdx": "c9556e21a042b9746fb3a9fee20045d2e2c8535e9d01d476e53333bddfaa4d8e",
+    "tiletactician/privacy.mdx": "1a96ffe8324abc37a26582ee5ec179ab976af4c93c48c83d4405feead6ba0b09",
+    "tiletactician/rack-analysis.mdx": "e1ca26769ab46698f77a82a8a4349179e5b02b945be7cc38f691bee06044c852",
+    "tiletactician/settings-subscriptions.mdx": "010c91ccfcf31335c8da0b12abb06461abc580957c910d3b88a2f10c722ad432",
     "tiletactician/share-extension.mdx": "a4925bbfd45bd601b7a1bfff9a16542b38677903ee4d44de3317885b26c0c7ad"
   }
 }

@@ -4,7 +4,7 @@ category: current-state
 updated: 2026-10-09
 summary: Dated durable facts and their source anchors
 nav_order: 130
-sources: [".codex/harness-memory.json", "README.md", "package.json", "next.config.mjs", "docs.json", "_migration/tools/lib/shared.mjs", "components/brand/products.ts", "app/global.css", "public/logo.svg", "tiletactician/index.mdx", "tiletactician/getting-started.mdx", "tiletactician/board-scanning.mdx", "tiletactician/rack-analysis.mdx", "tiletactician/settings-subscriptions.mdx", "tiletactician/share-extension.mdx", "tiletactician/faq.mdx"]
+sources: [".codex/harness-memory.json", "README.md", "package.json", "next.config.mjs", "docs.json", "_migration/tools/lib/shared.mjs", "components/brand/products.ts", "app/global.css", "public/logo.svg", "tiletactician/index.mdx", "tiletactician/getting-started.mdx", "tiletactician/board-scanning.mdx", "tiletactician/rack-analysis.mdx", "tiletactician/settings-subscriptions.mdx", "tiletactician/share-extension.mdx", "tiletactician/faq.mdx", "tiletactician/privacy.mdx"]
 ---
 
 # Durable ledger
@@ -40,6 +40,21 @@ that the mobile app is unavailable.
   ([source](https://github.com/smynkr/Crossplay-Pro/blob/14d970010d1c488d2d5fb98b8fcd4919b318565d/web-solver/src/config.ts#L9-L10))
   returned 404 during the dated 2026-10-09 audit. Recheck the current
   storefront and this URL before making a current-availability claim.
+- The repository's current mobile solver awards 35 points for a seven-tile
+  Crossplay play and 50 on Scrabble boards, while the NYT Help Center calls
+  the Crossplay play a “sweep” worth 40 points. The standalone rack guide now
+  identifies that source/rules discrepancy rather than presenting 35 as the
+  official Crossplay rule
+  ([solver](https://github.com/smynkr/Crossplay-Pro/blob/14d970010d1c488d2d5fb98b8fcd4919b318565d/src/engine/scoring.ts#L146-L148);
+  [NYT rules](https://help.nytimes.com/360011158491-New-York-Times-Games/crossplay-app)).
+- The product source advertises ad-supported rack scans and includes a Google
+  Mobile Ads helper, while the sole standalone privacy page says advertising
+  SDKs are not used. This docs-only audit leaves that policy page unchanged,
+  records the source/policy conflict without deciding what is deployed, and
+  removes ad-support claims from the guide copy
+  ([Settings](https://github.com/smynkr/Crossplay-Pro/blob/14d970010d1c488d2d5fb98b8fcd4919b318565d/app/settings.tsx#L417);
+  [ads helper](https://github.com/smynkr/Crossplay-Pro/blob/14d970010d1c488d2d5fb98b8fcd4919b318565d/src/lib/ads.ts#L1-L8);
+  [privacy page](https://github.com/smynkr/tiletactician-docs/blob/main/tiletactician/privacy.mdx#L8)).
 
 These are source-alignment and scope clarifications, not a product release;
 the product changelog remains unchanged. [[current-state]] remains the
