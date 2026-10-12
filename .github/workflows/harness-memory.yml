@@ -11,7 +11,7 @@ permissions:
 jobs:
   memory:
     name: Validate canonical memory
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, axiom-cloudflare-ubuntu-2404]
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
