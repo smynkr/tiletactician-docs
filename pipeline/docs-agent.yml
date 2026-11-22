@@ -1,19 +1,20 @@
-# docs-agent — auto-draft doc updates on merged PRs using Cloudflare GLM 5.3 Flash.
+# docs-agent — auto-draft doc updates on merged PRs using z.ai GLM 5.3 Flash.
 #
 # TEMPLATE: copy this file to `.github/workflows/docs-agent.yml` in EACH
 # product repo and set the two marked spots for the product. It is configured
-# for the hosted GLM backend (a metered API key). The driver itself always runs
+# for the hosted GLM backend (a z.ai subscription key). The driver itself always runs
 # from the docs repo checkout below — fix it there once, and every product repo
 # picks it up on its next run.
 #
 # Flow: PR merged → detect user-facing changes → GLM-5.3-Flash drafts MDX against
 # the CANONICAL flat sources → run-migration regenerates content/docs →
 # draft PR opened against smynkr/tiletactician-docs (base branch auto-detected).
-# This hosted template never configures a fallback backend: provider, payment,
-# authentication, and timeout failures are reported without another metered
-# request. The driver makes exactly one same-provider retry only when its first
-# request receives HTTP 429, honoring a bounded `Retry-After` delay under one
-# absolute timeout budget.
+# This hosted template configures no cross-model fallback backend. The driver
+# makes one same-provider retry only when its first request receives HTTP 429
+# (bounded `Retry-After` delay under one absolute timeout budget). When the
+# optional OpenRouter vars/secret below are set, a 401/403/408/429, 5xx, quota
+# or usage-limit, timeout, transport, or dropped-stream failure gets exactly one
+# same-model OpenRouter request; other 4xx (e.g. a deterministic 400) surface.
 #
 # GitHub auth is split by direction:
 #   DOCS_AGENT_SOURCE_TOKEN = source PR reads (the source repository).
@@ -24,15 +25,17 @@
 # Required repo secrets:
 #   DOCS_REPO_PAT  — PAT with Contents R/W + PRs R/W on
 #                    smynkr/tiletactician-docs (docs checkout + draft PR).
-#   CLOUDFLARE_WORKERS_AI_TOKEN — account-scoped Workers AI token
+#   ZAI_API_KEY — z.ai GLM Coding Plan key
 #
-# Required repo variables:
-#   CLOUDFLARE_ACCOUNT_ID         — exactly 32 lowercase hexadecimal characters
-#   DOCS_AGENT_GLM_API_BASE      — Cloudflare OpenAI-compatible AI endpoint
-#   DOCS_AGENT_GLM_MODEL         — optional; defaults to @cf/zai-org/glm-5.3-flash
+# Repo variables (all optional; defaults shown):
+#   DOCS_AGENT_GLM_API_BASE      — optional; default https://api.z.ai/api/coding/paas/v4
+#   DOCS_AGENT_GLM_MODEL         — optional; defaults to glm-5.3-flash
 #   DOCS_AGENT_GLM_MAX_TOKENS    — defaults to 49152
-#   DOCS_AGENT_GLM_REASONING_EFFORT — only exact Cloudflare GLM-5.3-Flash;
-#                                    low, medium, or high; defaults to high
+#   DOCS_AGENT_GLM_REASONING_EFFORT — low|medium|high|max; default high
+# Optional OpenRouter fallback (enabled only when all three are configured):
+#   DOCS_AGENT_GLM_FALLBACK_API_BASE — e.g. https://openrouter.ai/api/v1
+#   DOCS_AGENT_GLM_FALLBACK_MODEL — e.g. z-ai/glm-5.3-flash
+#   OPENROUTER_API_KEY — mapped to GLM_FALLBACK_API_KEY
 name: docs-agent
 
 on:
@@ -125,12 +128,14 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Run docs-agent with Cloudflare GLM 5.3 Flash
+      - name: Run docs-agent with z.ai GLM 5.3 Flash
         env:
           DOCS_AGENT_SOURCE_TOKEN: ${{ github.token }}
           GH_TOKEN: ${{ secrets.DOCS_REPO_PAT }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
-          GLM_API_KEY: ${{ secrets.CLOUDFLARE_WORKERS_AI_TOKEN }}
+          GLM_API_KEY: ${{ secrets.ZAI_API_KEY }}
+          DOCS_AGENT_GLM_FALLBACK_API_BASE: ${{ vars.DOCS_AGENT_GLM_FALLBACK_API_BASE }}
+          DOCS_AGENT_GLM_FALLBACK_MODEL: ${{ vars.DOCS_AGENT_GLM_FALLBACK_MODEL }}
+          GLM_FALLBACK_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           DOCS_AGENT_GLM_API_BASE: ${{ vars.DOCS_AGENT_GLM_API_BASE }}
           DOCS_AGENT_GLM_MODEL: ${{ vars.DOCS_AGENT_GLM_MODEL }}
           DOCS_AGENT_GLM_MAX_TOKENS: ${{ vars.DOCS_AGENT_GLM_MAX_TOKENS }}
